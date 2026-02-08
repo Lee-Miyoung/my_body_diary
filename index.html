@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>청인마루 통합 시스템 v74.3</title>
+    <title>청인마루 통합 시스템 v74.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -50,7 +50,7 @@
     <div id="login-gate">
         <div class="text-center w-full max-w-xs px-4">
             <h2 class="text-2xl font-black text-white mb-2">청인마루 통합 시스템</h2>
-            <p class="text-xs text-blue-500 font-bold mb-8">v74.3 ULTIMATE STABLE</p>
+            <p class="text-xs text-blue-500 font-bold mb-8">v74.4 PRO LINKED</p>
             <input type="password" id="app-password" class="w-full p-4 bg-gray-800 rounded-xl text-center text-xl text-white font-bold outline-none mb-4" placeholder="Password" onkeyup="if(event.keyCode==13) checkAppLogin()">
             <button onclick="checkAppLogin()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold">Access System</button>
         </div>
@@ -74,7 +74,7 @@
 
     <div class="p-4">
         <header class="max-w-6xl mx-auto mb-6 flex justify-between items-center">
-            <div><h1 class="text-2xl font-black text-gray-800">청인마루 통합 시스템 <span class="text-xs text-gray-400 font-normal ml-1">v74.3</span></h1><p class="text-[13px] text-blue-500 font-black uppercase">공간의 위로가 되다</p></div>
+            <div><h1 class="text-2xl font-black text-gray-800">청인마루 통합 시스템 <span class="text-xs text-gray-400 font-normal ml-1">v74.4</span></h1><p class="text-[13px] text-blue-500 font-black uppercase">공간의 위로가 되다</p></div>
             <div class="timer-badge bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-black">RESET: <span id="reset-timer">05:00</span></div>
         </header>
 
@@ -108,17 +108,14 @@
                         <div><label class="input-label">연락처</label><input type="tel" id="cust-phone" class="input-field" placeholder="연락처" oninput="saveTemp()"></div>
                     </div>
                     <div id="firm-row" class="hidden space-y-3 mb-3">
-                        <div><label class="input-label text-blue-500">인테리어 업체명</label><input type="text" id="firm-name" class="input-field border-blue-100 bg-blue-50/30" oninput="saveTemp(); updateInfo();"></div>
+                        <div><label class="input-label text-blue-500">인테리어 업체명</label><input type="text" id="firm-name" class="input-field border-blue-200 bg-blue-50/30" oninput="saveTemp(); updateInfo();"></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="input-label text-red-500">미수 금액</label><input type="text" id="firm-unpaid" class="input-field border-red-100 text-red-600" placeholder="0" oninput="formatNum(this); saveTemp()"></div>
                             <div class="flex items-center justify-center bg-gray-50 rounded-xl border border-gray-100"><input type="checkbox" id="firm-sample" class="w-5 h-5 mr-2 accent-blue-600" onchange="saveTemp()"><label for="firm-sample" class="text-xs font-bold text-gray-500">샘플북전달</label></div>
                         </div>
                         <div class="p-3 bg-gray-100/50 rounded-xl">
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="date" id="pay-dep-date" class="input-field text-[10px] p-2" title="계약금 입금일" oninput="saveTemp()">
-                                <input type="date" id="pay-bal-date" class="input-field text-[10px] p-2" title="잔금 입금일" oninput="saveTemp()">
-                            </div>
-                            <input type="text" id="sample-note" class="input-field text-xs" placeholder="샘플북 종류 및 전달일 메모" oninput="saveTemp()">
+                            <div class="grid grid-cols-2 gap-2 mb-2"><input type="date" id="pay-dep-date" class="input-field text-[10px] p-2" oninput="saveTemp()"><input type="date" id="pay-bal-date" class="input-field text-[10px] p-2" oninput="saveTemp()"></div>
+                            <input type="text" id="sample-note" class="input-field text-xs" placeholder="샘플북 메모" oninput="saveTemp()">
                         </div>
                     </div>
                     <div class="mb-3"><label class="input-label">현장 시공 주소</label><input type="text" id="cust-addr" class="input-field" oninput="saveTemp(); updateInfo();"></div>
@@ -135,8 +132,8 @@
                             <div onclick="setExp(false)" id="btn-nexp" class="flex-1 p-4 rounded-xl cursor-pointer exp-card-inactive"><div class="text-[9px] text-gray-400 font-bold mb-1">BASIC</div><div class="text-lg font-black text-gray-600">비확장(0.75)</div></div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div><label class="input-label">브랜드</label><select id="floor-brand" class="input-field" onchange="updateFloorProducts(); saveTemp()"></select></div>
-                            <div class="relative"><label class="input-label">제품</label><select id="floor-product" class="input-field" onchange="handleFloorProduct(); saveTemp()"></select></div>
+                            <div><label class="input-label">브랜드</label><select id="floor-brand" class="input-field" onchange="updateBrandSelects('floor'); saveTemp()"></select></div>
+                            <div class="relative"><label class="input-label">제품</label><select id="floor-product" class="input-field" onchange="handleProductSelection('floor'); saveTemp()"></select></div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <div><label class="input-label">모델명</label><input type="text" id="floor-model" class="input-field" oninput="saveTemp()"></div>
@@ -155,38 +152,28 @@
                 </div>
 
                 <div id="wall-wrapper" class="hidden">
+                    <div class="card-clean border-blue-200">
+                        <span class="text-sm font-black block mb-4 text-blue-600"><i class="fas fa-layer-group mr-1"></i> 벽장재 브랜드/제품 선택</span>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div><label class="input-label">브랜드</label><select id="wall-brand" class="input-field" onchange="updateBrandSelects('wall'); saveTemp()"></select></div>
+                            <div><label class="input-label">제품</label><select id="wall-product" class="input-field" onchange="handleProductSelection('wall'); saveTemp()"></select></div>
+                        </div>
+                    </div>
+
                     <div class="card-clean">
-                        <span class="text-sm font-black block mb-4 text-blue-600"><i class="fas fa-layer-group mr-1"></i> 공간별 상세 견적 (mm 단위)</span>
+                        <div class="flex justify-between items-center mb-4"><span class="text-sm font-black text-blue-600"><i class="fas fa-ruler-combined mr-1"></i> 실측 및 공간 구성</span><button onclick="connectBosch()" id="bosch-btn" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black shadow-sm"><i class="fab fa-bluetooth-b mr-1"></i> BOSCH 연결</button></div>
                         <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 mb-4">
                             <div class="grid grid-cols-2 gap-2 mb-2">
-                                <select id="zone-type" class="input-field text-xs p-1" onchange="handleZoneType(this.value)">
-                                    <option value="거실 전체">거실 전체</option>
-                                    <option value="주방/식당">주방/식당</option>
-                                    <option value="복도">복도</option>
-                                    <option value="침실 1 (안방)">침실 1 (안방)</option>
-                                    <option value="침실 2">침실 2</option>
-                                    <option value="침실 3">침실 3</option>
-                                    <option value="드레스룸">드레스룸</option>
-                                    <option value="현관 입구">현관 입구</option>
-                                    <option value="기타">기타 (직접입력)</option>
-                                </select>
+                                <select id="zone-type" class="input-field text-xs p-1" onchange="handleZoneType(this.value)"><option value="거실 전체">거실 전체</option><option value="주방/식당">주방/식당</option><option value="복도">복도</option><option value="침실 1 (안방)">침실 1 (안방)</option><option value="침실 2">침실 2</option><option value="침실 3">침실 3</option><option value="드레스룸">드레스룸</option><option value="현관 입구">현관 입구</option><option value="기타">기타 (직접입력)</option></select>
                                 <input type="text" id="zone-manual" class="input-field text-xs p-1 hidden" placeholder="공간명 직접 입력">
                             </div>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="number" id="deduct-w" class="input-field text-xs text-center" placeholder="공제 가로">
-                                <input type="number" id="deduct-h" class="input-field text-xs text-center" placeholder="공제 세로">
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="zone-w" class="input-field text-center text-xl h-14" placeholder="가로(W)">
-                                <span class="font-bold">×</span>
-                                <input type="number" id="zone-h" class="input-field text-center text-xl h-14" value="2300">
-                                <button onclick="addZone()" class="w-14 h-14 bg-blue-600 text-white rounded-xl shadow active:scale-95"><i class="fas fa-plus"></i></button>
-                            </div>
+                            <div class="grid grid-cols-2 gap-2 mb-2"><input type="number" id="deduct-w" class="input-field text-xs text-center" placeholder="공제 가로"><input type="number" id="deduct-h" class="input-field text-xs text-center" placeholder="공제 세로"></div>
+                            <div class="flex items-center gap-2"><input type="number" id="zone-w" class="input-field text-center text-xl h-14" placeholder="가로(W)"><span class="font-bold">×</span><input type="number" id="zone-h" class="input-field text-center text-xl h-14" value="2300"><button onclick="addZone()" class="w-14 h-14 bg-blue-600 text-white rounded-xl shadow active:scale-95"><i class="fas fa-plus"></i></button></div>
                         </div>
                         <div id="zone-list" class="space-y-2 mb-4"></div>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <div class="bg-white border rounded-xl p-3 text-center"><label class="block text-[9px] text-gray-400 mb-1">실면적 합계</label><div class="font-black text-lg text-blue-600"><span id="wm-total-m2">0</span> ㎡</div></div>
-                            <div class="bg-gray-900 rounded-xl p-3 text-center text-white"><label class="block text-[9px] text-gray-500 mb-1">최종 필요 BOX</label><div class="font-black text-lg"><span id="wm-final-box">0</span> BOX</div></div>
+                            <div class="bg-gray-900 rounded-xl p-3 text-center text-white"><label class="block text-[9px] text-gray-500 mb-1">필요 BOX</label><div class="font-black text-lg"><span id="wm-final-box">0</span> BOX</div></div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="input-label">인건비(㎡당)</label><input type="text" id="wall-labor-price" class="input-field text-right" placeholder="0" oninput="formatNum(this); calcWall()"></div>
@@ -196,17 +183,14 @@
 
                     <div class="card-clean">
                         <span class="text-xs font-black block mb-4 text-gray-400"><i class="fas fa-tools mr-1"></i> 부자재 및 기타 시공비</span>
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div><label class="input-label">전용본드 (개당 1만)</label><input type="number" id="wall-bond" class="input-field text-center" oninput="calcWall()"></div>
-                            <div><label class="input-label">시공목 (개당 5천)</label><input type="number" id="wall-wood" class="input-field text-center" oninput="calcWall()"></div>
-                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4"><div><label class="input-label">전용본드 (개당 1만)</label><input type="number" id="wall-bond" class="input-field text-center" oninput="calcWall()"></div><div><label class="input-label">시공목 (개당 5천)</label><input type="number" id="wall-wood" class="input-field text-center" oninput="calcWall()"></div></div>
                         <div class="space-y-2 mb-4">
                             <label class="input-label">마감 몰딩 선택</label>
                             <div class="flex items-center justify-between p-3 border rounded-xl bg-gray-50"><div class="flex items-center"><input type="checkbox" id="mol-gen" class="mr-2" onchange="calcWall()"><span>일반 (5,000)</span></div><input type="number" id="mol-gen-qty" class="w-12 text-center text-xs border-b" oninput="calcWall()"></div>
                             <div class="flex items-center justify-between p-3 border rounded-xl bg-gray-50"><div class="flex items-center"><input type="checkbox" id="mol-pre" class="mr-2" onchange="calcWall()"><span>프리미엄 (15,000)</span></div><input type="number" id="mol-pre-qty" class="w-12 text-center text-xs border-b" oninput="calcWall()"></div>
                             <div class="flex items-center justify-between p-3 border rounded-xl bg-gray-50"><div class="flex items-center"><input type="checkbox" id="mol-std" class="mr-2" onchange="calcWall()"><span>표준 (10,000)</span></div><input type="number" id="mol-std-qty" class="w-12 text-center text-xs border-b" oninput="calcWall()"></div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3"><input type="text" id="wall-rem" class="input-field text-right" placeholder="기존벽재제거" oninput="formatNum(this); calcWall()"><input type="text" id="wall-waste" class="input-field text-right" placeholder="폐기물처리비" oninput="formatNum(this); calcWall()"><input type="text" id="wall-lift" class="input-field text-right" placeholder="운반/양중" oninput="formatNum(this); calcWall()"><input type="text" id="wall-protect" class="input-field text-right" placeholder="보양/기타" oninput="formatNum(this); calcWall()"></div>
+                        <div class="grid grid-cols-2 gap-3"><input type="text" id="wall-rem" class="input-field text-right" placeholder="벽재제거" oninput="formatNum(this); calcWall()"><input type="text" id="wall-waste" class="input-field text-right" placeholder="폐기물" oninput="formatNum(this); calcWall()"><input type="text" id="wall-lift" class="input-field text-right" placeholder="양중" oninput="formatNum(this); calcWall()"><input type="text" id="wall-protect" class="input-field text-right" placeholder="보양" oninput="formatNum(this); calcWall()"></div>
                     </div>
                 </div>
 
@@ -235,7 +219,8 @@
 
     <script>
         const FLOOR_URL = "https://script.google.com/macros/s/AKfycbzp2kx3wOkbCEh1eTj9m5zKaCpXjMatk1KAjSVhh2OmBJhxjX-YedcI8CNVo0pj7zPs/exec";
-        let masterData=[], zoneList=[], userType='consumer', mode='floor', floorExp=true, resetSecs = 300;
+        const WALL_URL = "https://script.google.com/macros/s/AKfycbz1-xED4gTgT2SW1aAWfGkChXd2MtCmLWw8iM5YVIAg4bmMdfXIGfT5ZrzY-QiZmJ3y-w/exec";
+        let floorData=[], wallData=[], zoneList=[], userType='consumer', mode='floor', floorExp=true, resetSecs = 300;
         const PY_FACTOR = 3.3058;
 
         window.onload = async () => { 
@@ -251,7 +236,7 @@
             const data = JSON.parse(localStorage.getItem('cm_temp_data')); const time = localStorage.getItem('cm_temp_time');
             if(data && time && (Date.now() - time < 300000)) {
                 for(const key in data) { const el = document.getElementById(key); if(el) { if(el.type === 'checkbox') el.checked = data[key]; else el.value = data[key]; } }
-                if (data['floor-brand']) updateFloorProducts();
+                if (data['floor-brand'] || data['wall-brand']) updateBrandSelects(mode);
                 setTimeout(() => { if(mode==='floor') calcFloor(); else calcWall(); updateInfo(); }, 500);
             }
         }
@@ -262,11 +247,16 @@
 
         async function loadData() {
             try {
-                const res = await fetch(FLOOR_URL + "?t=" + new Date().getTime()); const data = await res.json();
-                const temp = {};
-                data.forEach(item => { if(item.brand) { if(!temp[item.brand]) temp[item.brand]={brand:item.brand, products:[]}; const fVal = parseFloat(item.factor) || 3.2; temp[item.brand].products.push({...item, finalArea: fVal}); } });
-                masterData = Object.values(temp); updateBrandSelects();
+                const [resF, resW] = await Promise.all([fetch(FLOOR_URL + "?t=" + new Date().getTime()), fetch(WALL_URL + "?t=" + new Date().getTime())]);
+                const dataF = await resF.json(), dataW = await resW.json();
+                floorData = processData(dataF); wallData = processData(dataW);
+                updateBrandSelects(mode);
             } catch(e) { console.error("Load Fail"); }
+        }
+        function processData(data) {
+            const temp = {};
+            data.forEach(item => { if(item.brand) { if(!temp[item.brand]) temp[item.brand]={brand:item.brand, products:[]}; const fVal = parseFloat(item.factor) || 3.2; temp[item.brand].products.push({...item, finalArea: fVal}); } });
+            return Object.values(temp);
         }
 
         function setMode(m) {
@@ -275,20 +265,53 @@
             document.getElementById('floor-wrapper').style.display = (m==='floor'?'block':'none');
             document.getElementById('wall-wrapper').style.display = (m==='wall'?'block':'none');
             document.getElementById('floor-options').style.display = (m==='floor'?'block':'none');
+            updateBrandSelects(m);
             if(m==='floor') calcFloor(); else if(m==='wall') calcWall();
         }
 
-        // [복구] 벽장재 공간 추가 로직 (이미지 구성 반영)
-        function handleZoneType(val) { document.getElementById('zone-manual').className = (val==='기타'?'input-field text-xs p-1 block':'input-field text-xs p-1 hidden'); }
+        function updateBrandSelects(m) {
+            const data = m === 'wall' ? wallData : floorData;
+            const bSel = document.getElementById(m + '-brand');
+            if(!bSel) return;
+            bSel.innerHTML = '<option value="">브랜드 선택</option>';
+            data.forEach(x => bSel.add(new Option(x.brand, x.brand)));
+        }
+        function updateFloorProducts(m = mode) {
+            const data = m === 'wall' ? wallData : floorData;
+            const bName = document.getElementById(m + '-brand').value;
+            const pSel = document.getElementById(m + '-product');
+            pSel.innerHTML = '<option value="">제품 선택</option>';
+            const bObj = data.find(x => x.brand === bName);
+            if(bObj) bObj.products.forEach((p, i) => pSel.add(new Option(p.name, i)));
+        }
 
+        function handleProductSelection(m) {
+            const data = m === 'wall' ? wallData : floorData;
+            const bName = document.getElementById(m + '-brand').value, pIdx = document.getElementById(m + '-product').value;
+            if(pIdx !== "") {
+                const p = data.find(x => x.brand === bName).products[pIdx];
+                const price = (userType==='firm' ? (p.firm_price || p.price) : p.price);
+                if(m==='floor') {
+                    document.getElementById('floor-price').value = price.toLocaleString();
+                    document.getElementById('f-box-area').value = p.finalArea;
+                    document.getElementById('floor-spec').value = p.spec || '';
+                } else {
+                    document.getElementById('wm-box-price').value = price.toLocaleString();
+                    document.getElementById('wall-labor-price').value = (p.labor || 0).toLocaleString();
+                }
+                document.getElementById('rep-prod').innerText = p.name;
+            }
+            if(m==='floor') calcFloor(); else calcWall();
+        }
+
+        function handleZoneType(val) { document.getElementById('zone-manual').className = (val==='기타'?'input-field text-xs p-1 block':'input-field text-xs p-1 hidden'); }
         function addZone() {
             const w = parseFloat(document.getElementById('zone-w').value)||0, h = parseFloat(document.getElementById('zone-h').value)||2300;
             const dw = parseFloat(document.getElementById('deduct-w').value)||0, dh = parseFloat(document.getElementById('deduct-h').value)||0;
             if(!w || !h) return;
             const type = document.getElementById('zone-type').value;
             const name = type === '기타' ? (document.getElementById('zone-manual').value || '기타') : type;
-            const area = ((w-dw)*(h-dh))/1000000;
-            zoneList.push({ name, w, h, area });
+            zoneList.push({ name, area: ((w-dw)*(h-dh))/1000000, w, h });
             renderZones(); calcWall();
         }
         function renderZones() { document.getElementById('zone-list').innerHTML = zoneList.map((z, i) => `<div class="bg-white p-2 border rounded-lg flex justify-between text-xs mb-1"><span>${z.name} (${z.w}x${z.h})</span><span>${z.area.toFixed(2)}㎡ <button onclick="removeZone(${i})" class="text-red-500 ml-2">×</button></span></div>`).join(''); }
@@ -301,18 +324,12 @@
             document.getElementById('wm-final-box').innerText = boxes;
             document.getElementById('rep-boxes').innerText = boxes;
             document.getElementById('rep-m2-text').innerText = m2.toFixed(2);
-
             const bP = parseInt(document.getElementById('wm-box-price').value.replace(/,/g,''))||0;
             const lP = parseInt(document.getElementById('wall-labor-price').value.replace(/,/g,''))||0;
             const bond = (parseInt(document.getElementById('wall-bond').value)||0) * 10000;
             const wood = (parseInt(document.getElementById('wall-wood').value)||0) * 5000;
-            
-            let html = `<div class="report-item"><span>벽장재 자재+시공 (${boxes}box + ${m2.toFixed(2)}㎡)</span><span class="report-val">${((boxes*bP)+(m2*lP)).toLocaleString()}원</span></div>`;
-            if(bond > 0) html += `<div class="report-item"><span>전용본드</span><span class="report-val">${bond.toLocaleString()}원</span></div>`;
-            if(wood > 0) html += `<div class="report-item"><span>시공목</span><span class="report-val">${wood.toLocaleString()}원</span></div>`;
-            
-            document.getElementById('report-detail-list').innerHTML = html;
             const sub = (boxes*bP)+(m2*lP)+bond+wood + (parseInt(document.getElementById('wall-rem').value.replace(/,/g,''))||0) + (parseInt(document.getElementById('wall-waste').value.replace(/,/g,''))||0);
+            document.getElementById('report-detail-list').innerHTML = `<div class="report-item"><span>벽장재 (${boxes}box)</span><span class="report-val">${(boxes*bP).toLocaleString()}원</span></div><div class="report-item"><span>시공비</span><span class="report-val">${(m2*lP).toLocaleString()}원</span></div>`;
             document.getElementById('val-supply').innerText = sub.toLocaleString() + " 원";
             document.getElementById('val-total').innerText = Math.round(sub*1.1).toLocaleString();
         }
@@ -324,52 +341,28 @@
             const boxes = Math.ceil(((realPy * PY_FACTOR) / parseFloat(document.getElementById('f-box-area').value||3.2)) * 1.1);
             document.getElementById('f-final-box').innerText = boxes; document.getElementById('rep-boxes').innerText = boxes;
             document.getElementById('rep-m2-text').innerText = (realPy * PY_FACTOR).toFixed(2);
-            const mat = boxes * (parseInt(document.getElementById('floor-price').value.replace(/,/g,''))||0);
-            const opt = (parseInt(document.getElementById('opt-removal').value.replace(/,/g,''))||0) * realPy;
-            document.getElementById('report-detail-list').innerHTML = `<div class="report-item"><span>자재 (${boxes}box)</span><span class="report-val">${mat.toLocaleString()}원</span></div>`;
-            document.getElementById('val-supply').innerText = (mat+opt).toLocaleString()+" 원";
-            document.getElementById('val-total').innerText = Math.round((mat+opt)*1.1).toLocaleString();
+            const bP = parseInt(document.getElementById('floor-price').value.replace(/,/g,''))||0;
+            const rP = parseInt(document.getElementById('opt-removal').value.replace(/,/g,''))||0;
+            const total = (boxes * bP) + (rP * realPy);
+            document.getElementById('report-detail-list').innerHTML = `<div class="report-item"><span>자재 (${boxes}box)</span><span class="report-val">${(boxes*bP).toLocaleString()}원</span></div>`;
+            document.getElementById('val-supply').innerText = total.toLocaleString()+" 원";
+            document.getElementById('val-total').innerText = Math.round(total*1.1).toLocaleString();
         }
 
-        function saveRecord() {
-            const r = JSON.parse(localStorage.getItem('cm_records')||'[]');
-            r.unshift({ id: Date.now(), date: new Date().toLocaleString(), type: userType, name: document.getElementById('cust-name').value, phone: document.getElementById('cust-phone').value, firm: document.getElementById('firm-name').value, unpaid: document.getElementById('firm-unpaid').value, sample: document.getElementById('firm-sample').checked, note: document.getElementById('sample-note').value, dep: document.getElementById('pay-dep-date').value, bal: document.getElementById('pay-bal-date').value, prod: document.getElementById('rep-prod').innerText, total: document.getElementById('val-total').innerText, addr: document.getElementById('cust-addr').value, sur: document.getElementById('cust-survey-date').value, wor: document.getElementById('cust-work-date').value, details: document.getElementById('report-detail-list').innerHTML });
-            localStorage.setItem('cm_records', JSON.stringify(r)); showToast("저장 완료");
-        }
-
-        function renderManager(f = 'all') {
-            const r = JSON.parse(localStorage.getItem('cm_records')||'[]'); const s = document.getElementById('manage-search').value.toLowerCase();
-            ['all','firm','consumer'].forEach(t => document.getElementById('m-tab-'+t).className = (t===f?'tab-btn active text-[10px]':'tab-btn inactive text-[10px]'));
-            document.getElementById('manage-list').innerHTML = r.filter(x => ((x.name||'').toLowerCase().includes(s) || (x.firm||'').toLowerCase().includes(s)) && (f==='all' || x.type===f)).map(x => `
-                <div class="bg-white p-4 rounded-xl border mb-3 shadow-sm" onclick="this.querySelector('.detail-view').style.display=this.querySelector('.detail-view').style.display==='block'?'none':'block'">
-                    <div class="flex justify-between font-black text-blue-600"><span>${x.firm !== '-' ? '['+x.firm+'] ' : ''}${x.name}</span><span class="text-[9px] text-gray-400">${x.date.split(' ')[0]}</span></div>
-                    <div class="text-[10px] text-gray-500 my-1 truncate">${x.addr}</div>
-                    <div class="flex justify-between mt-2 pt-2 border-t text-xs font-bold"><span>${x.prod}</span><span class="text-red-500">${x.total}원</span></div>
-                    <div class="detail-view">
-                        <div class="space-y-1 mt-2 text-[10px]">
-                            <div class="detail-row"><span class="detail-label">연락처</span><span class="detail-value text-blue-600">${x.phone || '-'}</span></div>
-                            <div class="mt-2 pt-2 border-t">${(x.details || '-').replace(/report-item/g, 'm-detail-item')}</div>
-                        </div>
-                    </div>
-                </div>`).join('');
-        }
-
-        // 유틸리티
-        function setModeType(t){ userType=t; document.getElementById('mode-consumer').className=(t==='consumer'?'mode-btn active-consumer':'mode-btn'); document.getElementById('mode-firm').className=(t==='firm'?'mode-btn active-firm':'mode-btn'); document.getElementById('firm-row').className=(t==='firm'?'block space-y-3 mb-3':'hidden'); loadData(); updateInfo(); }
-        function updateInfo(){ const n=document.getElementById('cust-name').value||'고객님',f=document.getElementById('firm-name').value,a=document.getElementById('cust-addr').value||'현장 미지정'; document.getElementById('rep-name').innerText=n; document.getElementById('rep-firm').innerText=userType==='firm'&&f?`Partner: ${f}`:''; document.getElementById('rep-site').innerText=a; if(!document.getElementById('rep-id').innerText){ const now=new Date(); document.getElementById('rep-id').innerText=`No. ${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`; } }
-        function handleFloorProduct(){ const b=document.getElementById('floor-brand').value,i=document.getElementById('floor-product').value; if(i!==""){ const p=masterData.find(x=>x.brand===b).products[i]; document.getElementById('floor-price').value=(userType==='firm'?(p.firm_price||p.price):p.price).toLocaleString(); document.getElementById('f-box-area').value=p.finalArea; document.getElementById('rep-prod').innerText=p.name; document.getElementById('floor-spec').value=p.spec||''; } calcFloor(); saveTemp(); }
         function syncFPy(){ const p=parseFloat(document.getElementById('f-supply-py').value)||0; document.getElementById('f-supply-m2').value=(p*PY_FACTOR).toFixed(2); calcFloor(); saveTemp(); updateInfo(); }
         function syncFM2(){ const m=parseFloat(document.getElementById('f-supply-m2').value)||0; document.getElementById('f-supply-py').value=(m/PY_FACTOR).toFixed(1); syncFPy(); }
+        async function handleImage(f){ try{ const {data:{text}}=await Tesseract.recognize(f,'kor+eng'); document.getElementById('raw-text').value=text; runSuperParse(); }catch(e){}}
+        function runSuperParse(){ const t=document.getElementById('raw-text').value; const p=t.match(/010[-.\s]?\d{3,4}[-.\s]?\d{4}/); if(p) document.getElementById('cust-phone').value=p[0]; saveTemp(); }
+        async function connectBosch(){ try{ await navigator.bluetooth.requestDevice({ filters: [{ services: ['00001810-0000-1000-8000-00805f9b34fb'] }] }); showToast("보쉬 GLM 연결됨"); } catch(e){ showToast("지원기기없음"); } }
+        function saveRecord(){ const r=JSON.parse(localStorage.getItem('cm_records')||'[]'); r.unshift({ id: Date.now(), date: new Date().toLocaleString(), type: userType, name: document.getElementById('cust-name').value, phone: document.getElementById('cust-phone').value, firm: document.getElementById('firm-name').value, unpaid: document.getElementById('firm-unpaid').value, sample: document.getElementById('firm-sample').checked, note: document.getElementById('sample-note').value, dep: document.getElementById('pay-dep-date').value, bal: document.getElementById('pay-bal-date').value, prod: document.getElementById('rep-prod').innerText, total: document.getElementById('val-total').innerText, addr: document.getElementById('cust-addr').value, sur: document.getElementById('cust-survey-date').value, wor: document.getElementById('cust-work-date').value, details: document.getElementById('report-detail-list').innerHTML }); localStorage.setItem('cm_records', JSON.stringify(r)); showToast("저장 완료"); }
+        function renderManager(f = 'all') { const r = JSON.parse(localStorage.getItem('cm_records')||'[]'); const s = document.getElementById('manage-search').value.toLowerCase(); ['all','firm','consumer'].forEach(t => document.getElementById('m-tab-'+t).className = (t===f?'tab-btn active text-[10px]':'tab-btn inactive text-[10px]')); document.getElementById('manage-list').innerHTML = r.filter(x => ((x.name||'').toLowerCase().includes(s) || (x.firm||'').toLowerCase().includes(s)) && (f==='all' || x.type===f)).map(x => `<div class="bg-white p-4 rounded-xl border mb-3 shadow-sm" onclick="this.querySelector('.detail-view').style.display=this.querySelector('.detail-view').style.display==='block'?'none':'block'"><div class="flex justify-between font-black text-blue-600"><span>${x.firm !== '-' ? '['+x.firm+'] ' : ''}${x.name}</span><span class="text-[9px] text-gray-400">${x.date.split(' ')[0]}</span></div><div class="text-[10px] text-gray-500 my-1 truncate">${x.addr}</div><div class="flex justify-between mt-2 pt-2 border-t text-xs font-bold"><span>${x.prod}</span><span class="text-red-500">${x.total}원</span></div><div class="detail-view"><div class="space-y-1 mt-2 text-[10px]"><div class="detail-row"><span class="detail-label">연락처</span><span class="detail-value text-blue-600">${x.phone}</span></div><div class="mt-2 pt-2 border-t">${(x.details || '-').replace(/report-item/g, 'm-detail-item')}</div></div></div></div>`).join(''); }
+        function setModeType(t){ userType=t; document.getElementById('mode-consumer').className=(t==='consumer'?'mode-btn active-consumer':'mode-btn'); document.getElementById('mode-firm').className=(t==='firm'?'mode-btn active-firm':'mode-btn'); document.getElementById('firm-row').className=(t==='firm'?'block space-y-3 mb-3':'hidden'); updateInfo(); }
+        function updateInfo(){ const n=document.getElementById('cust-name').value||'고객님',f=document.getElementById('firm-name').value,a=document.getElementById('cust-addr').value||'현장 미지정'; document.getElementById('rep-name').innerText=n; document.getElementById('rep-firm').innerText=userType==='firm'&&f?`Partner: ${f}`:''; document.getElementById('rep-site').innerText=a; if(!document.getElementById('rep-id').innerText){ const now=new Date(); document.getElementById('rep-id').innerText=`No. ${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`; } }
         function checkAppLogin(){ if(document.getElementById('app-password').value==='1306'){document.getElementById('login-gate').style.display='none'; localStorage.setItem('cm_auth','ok');}}
         function showToast(m){ const t=document.getElementById('toast'); t.innerText=m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 2000); }
         function formatNum(el){ el.value=el.value.replace(/[^0-9]/g,'').replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-        function updateBrandSelects(){ const f=document.getElementById('floor-brand'); f.innerHTML='<option value="">브랜드 선택</option>'; masterData.forEach(m=>f.add(new Option(m.brand, m.brand))); }
-        function updateFloorProducts(){ const n=document.getElementById('floor-brand').value,s=document.getElementById('floor-product'); s.innerHTML='<option value="">제품 선택</option>'; const b=masterData.find(x=>x.brand===n); if(b) b.products.forEach((p,i)=>s.add(new Option(p.name, i))); }
         function saveImg(){ html2canvas(document.querySelector("#capture-area")).then(c=>{ const l=document.createElement('a'); l.download='견적서.png'; l.href=c.toDataURL(); l.click(); }); }
-        async function handleImage(f){ try{ const {data:{text}}=await Tesseract.recognize(f,'kor+eng'); document.getElementById('raw-text').value=text; runSuperParse(); }catch(e){}}
-        function runSuperParse(){ const t=document.getElementById('raw-text').value; const p=t.match(/010[-.\s]?\d{3,4}[-.\s]?\d{4}/); if(p) document.getElementById('cust-phone').value=p[0]; saveTemp(); }
         function setExp(v){ floorExp=v; document.getElementById('btn-exp').className=(v?'flex-1 p-4 rounded-xl cursor-pointer exp-card-active':'flex-1 p-4 rounded-xl cursor-pointer exp-card-inactive'); document.getElementById('btn-nexp').className=(!v?'flex-1 p-4 rounded-xl cursor-pointer exp-card-active':'flex-1 p-4 rounded-xl cursor-pointer exp-card-inactive'); calcFloor(); saveTemp(); }
-        async function connectBosch(){ showToast("지원기기없음"); }
     </script>
 </body>
 </html>
