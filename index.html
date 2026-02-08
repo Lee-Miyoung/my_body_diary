@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>청인마루 통합 시스템 v74.0</title>
+    <title>청인마루 통합 시스템 v74.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -34,11 +34,8 @@
         @keyframes flash { 0% { background-color: #fef08a; } 100% { background-color: transparent; } }
         .flash-update { animation: flash 0.8s ease-out; }
         .timer-badge { background: rgba(255,0,0,0.1); color: #ff4d4f; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; }
-        /* [중요] 다크모드 리포트 아이템 스타일 */
         .report-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 12px; }
-        .report-calc { font-size: 10px; color: #9CA3AF; }
         .report-val { color: #60A5FA; font-weight: 700; }
-        /* [중요] 관리센터 상세 내역 스타일 */
         .detail-view { display: none; background: #F8F9FA; border-radius: 12px; padding: 15px; margin-top: 10px; border: 1px solid #E9ECEF; }
         .detail-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: #495057; border-bottom: 1px solid #eee; padding-bottom: 4px; }
         .detail-value { font-weight: 800; color: #212529; }
@@ -53,7 +50,7 @@
     <div id="login-gate">
         <div class="text-center w-full max-w-xs px-4">
             <h2 class="text-2xl font-black text-white mb-2">청인마루 통합 시스템</h2>
-            <p class="text-xs text-blue-500 font-bold mb-8">v74.0 ULTIMATE</p>
+            <p class="text-xs text-blue-500 font-bold mb-8">v74.1 ULTIMATE</p>
             <input type="password" id="app-password" class="w-full p-4 bg-gray-800 rounded-xl text-center text-xl text-white font-bold outline-none mb-4" placeholder="Password" onkeyup="if(event.keyCode==13) checkAppLogin()">
             <button onclick="checkAppLogin()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold">Access System</button>
         </div>
@@ -77,7 +74,7 @@
 
     <div class="p-4">
         <header class="max-w-6xl mx-auto mb-6 flex justify-between items-center">
-            <div><h1 class="text-2xl font-black text-gray-800">청인마루 통합 시스템 <span class="text-xs text-gray-400 font-normal ml-1">v74.0</span></h1><p class="text-[13px] text-blue-500 font-black uppercase">공간의 위로가 되다</p></div>
+            <div><h1 class="text-2xl font-black text-gray-800">청인마루 통합 시스템 <span class="text-xs text-gray-400 font-normal ml-1">v74.1</span></h1><p class="text-[13px] text-blue-500 font-black uppercase">공간의 위로가 되다</p></div>
             <div class="timer-badge bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-black">RESET: <span id="reset-timer">05:00</span></div>
         </header>
 
@@ -117,10 +114,7 @@
                             <div class="flex items-center justify-center bg-gray-50 rounded-xl border border-gray-100"><input type="checkbox" id="firm-sample" class="w-5 h-5 mr-2 accent-blue-600" onchange="saveTemp()"><label for="firm-sample" class="text-xs font-bold text-gray-500">샘플북전달</label></div>
                         </div>
                         <div class="p-3 bg-gray-100/50 rounded-xl">
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="date" id="pay-dep-date" class="input-field text-[10px] p-2" title="계약금" oninput="saveTemp()">
-                                <input type="date" id="pay-bal-date" class="input-field text-[10px] p-2" title="잔금" oninput="saveTemp()">
-                            </div>
+                            <div class="grid grid-cols-2 gap-2 mb-2"><input type="date" id="pay-dep-date" class="input-field text-[10px] p-2" oninput="saveTemp()"><input type="date" id="pay-bal-date" class="input-field text-[10px] p-2" oninput="saveTemp()"></div>
                             <input type="text" id="sample-note" class="input-field text-xs" placeholder="샘플북 메모" oninput="saveTemp()">
                         </div>
                     </div>
@@ -264,21 +258,23 @@
             const rTotal = rP * realPy;
             const mTotal = mP * py;
             let html = '';
-            if(bP > 0) html += `<div class="report-item"><span>자재 (${boxes}box × ${bP.toLocaleString()})</span><span class="report-val">${matTotal.toLocaleString()}</span></div>`;
-            if(rP > 0) html += `<div class="report-item"><span>철거 (${realPy}평 × ${rP.toLocaleString()})</span><span class="report-val">${rTotal.toLocaleString()}</span></div>`;
-            if(mP > 0) html += `<div class="report-item"><span>걸레받이 (${py}평 × ${mP.toLocaleString()})</span><span class="report-val">${mTotal.toLocaleString()}</span></div>`;
+            if(bP > 0) html += `<div class="report-item"><span class="report-calc">자재 (${boxes}box × ${bP.toLocaleString()})</span><span class="report-val">${matTotal.toLocaleString()}</span></div>`;
+            if(rP > 0) html += `<div class="report-item"><span class="report-calc">철거 (${realPy}평 × ${rP.toLocaleString()})</span><span class="report-val">${rTotal.toLocaleString()}</span></div>`;
+            if(mP > 0) html += `<div class="report-item"><span class="report-calc">걸레받이 (${py}평 × ${mP.toLocaleString()})</span><span class="report-val">${mTotal.toLocaleString()}</span></div>`;
             document.getElementById('report-detail-list').innerHTML = html || '-';
             const total = matTotal + rTotal + mTotal;
             document.getElementById('val-supply').innerText = total.toLocaleString()+" 원";
             document.getElementById('val-total').innerText = Math.round(total*1.1).toLocaleString();
         }
 
+        // [중요] 전화번호 포함 저장
         function saveRecord() {
             const r = JSON.parse(localStorage.getItem('cm_records')||'[]');
             const detailsHtml = document.getElementById('report-detail-list').innerHTML;
             r.unshift({ 
                 id: Date.now(), date: new Date().toLocaleString(), type: userType, 
                 name: document.getElementById('cust-name').value || '미정', 
+                phone: document.getElementById('cust-phone').value || '-', // [복구]
                 firm: document.getElementById('firm-name').value || '-', 
                 unpaid: document.getElementById('firm-unpaid').value || '0', 
                 sample: document.getElementById('firm-sample').checked, 
@@ -290,11 +286,12 @@
                 addr: document.getElementById('cust-addr').value || '-',
                 sur: document.getElementById('cust-survey-date').value || '-', 
                 wor: document.getElementById('cust-work-date').value || '-',
-                details: detailsHtml // [중요] 상세 견적 내역 저장
+                details: detailsHtml
             });
             localStorage.setItem('cm_records', JSON.stringify(r)); showToast("저장 완료");
         }
 
+        // [복구] 상세 내역 및 전화번호 출력
         function renderManager(f = 'all') {
             const r = JSON.parse(localStorage.getItem('cm_records')||'[]');
             const s = document.getElementById('manage-search').value.toLowerCase();
@@ -303,8 +300,9 @@
                 <div class="bg-white p-4 rounded-xl border mb-3 shadow-sm" onclick="this.querySelector('.detail-view').style.display=this.querySelector('.detail-view').style.display==='block'?'none':'block'">
                     <div class="flex justify-between font-black text-blue-600"><span>${x.firm !== '-' ? '['+x.firm+'] ' : ''}${x.name}</span><span class="text-[9px] text-gray-400">${x.date.split(' ')[0]}</span></div>
                     <div class="text-[10px] text-gray-500 my-1 truncate">${x.addr}</div>
-                    <div class="flex justify-between mt-2 pt-2 border-t text-xs font-bold"><span>${x.prod || x.product || '제품 미선택'}</span><span class="text-red-500">${x.total}원</span></div>
+                    <div class="flex justify-between mt-2 pt-2 border-t text-xs font-bold"><span>${x.prod || '제품 미선택'}</span><span class="text-red-500">${x.total}원</span></div>
                     <div class="detail-view">
+                        <div class="detail-row"><span class="detail-label">연락처</span><span class="detail-value text-blue-600">${x.phone || '-'}</span></div>
                         <div class="detail-row"><span class="detail-label">실측/시공</span><span class="detail-value">${x.sur} / ${x.wor}</span></div>
                         <div class="detail-row"><span class="detail-label">계약/잔금</span><span class="detail-value">${x.dep} / ${x.bal}</span></div>
                         <div class="mt-3 pt-2 border-t border-gray-100">
@@ -316,13 +314,12 @@
                 </div>`).join('');
         }
 
-        // [복구] 제품 핸들링
+        // 유틸리티 로직 보존
         function handleFloorProduct() { const bName=document.getElementById('floor-brand').value, pIdx=document.getElementById('floor-product').value; if(pIdx!==""){ const p=masterData.find(x=>x.brand===bName).products[pIdx]; document.getElementById('floor-price').value=(userType==='firm'?(p.firm_price||p.price):p.price).toLocaleString(); document.getElementById('f-box-area').value=p.finalArea; document.getElementById('rep-prod').innerText=p.name; document.getElementById('floor-spec').value=p.spec||''; const a=document.getElementById('f-box-area'); a.classList.add('flash-update'); setTimeout(()=>a.classList.remove('flash-update'),800); } calcFloor(); saveTemp(); }
         function syncFPy(){ const p=parseFloat(document.getElementById('f-supply-py').value)||0; document.getElementById('f-supply-m2').value=(p*PY_FACTOR).toFixed(2); calcFloor(); saveTemp(); updateInfo(); }
         function syncFM2(){ const m=parseFloat(document.getElementById('f-supply-m2').value)||0; document.getElementById('f-supply-py').value=(m/PY_FACTOR).toFixed(1); syncFPy(); }
         async function handleImage(f){ try{ const {data:{text}}=await Tesseract.recognize(f,'kor+eng'); document.getElementById('raw-text').value=text; runSuperParse(); }catch(e){}}
         function runSuperParse(){ const t=document.getElementById('raw-text').value; const p=t.match(/010[-.\s]?\d{3,4}[-.\s]?\d{4}/); if(p) document.getElementById('cust-phone').value=p[0]; saveTemp(); }
-        async function connectBosch(){ try{await navigator.bluetooth.requestDevice({filters:[{services:['00001810-0000-1000-8000-00805f9b34fb']}]}); showToast("성공");}catch(e){}}
         function openManager(){ document.getElementById('manage-modal').style.display='flex'; renderManager('all'); }
         function setModeType(t){ userType=t; document.getElementById('mode-consumer').className=(t==='consumer'?'mode-btn active-consumer':'mode-btn'); document.getElementById('mode-firm').className=(t==='firm'?'mode-btn active-firm':'mode-btn'); document.getElementById('firm-row').className=(t==='firm'?'block space-y-3 mb-3':'hidden'); loadData(); updateInfo(); }
         function setMode(m){ ['floor','wall','measure'].forEach(id=>document.getElementById('tab-'+id).className='tab-btn '+(id===m?'active':'inactive')); document.getElementById('floor-wrapper').style.display=(m==='floor'?'block':'none'); loadData(); }
@@ -333,7 +330,7 @@
         function updateBrandSelects(){ const b=document.getElementById('floor-brand'); b.innerHTML='<option value="">브랜드 선택</option>'; masterData.forEach(m=>b.add(new Option(m.brand, m.brand))); }
         function updateFloorProducts(){ const n=document.getElementById('floor-brand').value,s=document.getElementById('floor-product'); s.innerHTML='<option value="">제품 선택</option>'; const b=masterData.find(x=>x.brand===n); if(b) b.products.forEach((p,i)=>s.add(new Option(p.name, i))); }
         function saveImg(){ html2canvas(document.querySelector("#capture-area")).then(c=>{ const l=document.createElement('a'); l.download='견적서.png'; l.href=c.toDataURL(); l.click(); }); }
-        function debugProduct(){ const b=document.getElementById('floor-brand').value,i=document.getElementById('floor-product').value; if(!i) return alert("선택필요"); const p=masterData.find(x=>x.brand===b).products[i]; alert("Factor: "+p.finalArea); }
+        async function connectBosch(){ showToast("지원기기없음"); }
     </script>
 </body>
 </html>
