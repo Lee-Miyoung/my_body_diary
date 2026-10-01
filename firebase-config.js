@@ -1,6 +1,7 @@
 window.BODY_DIARY_FIREBASE_CONFIG = {
   apiKey: "AIzaSyA3zESLsbXRrF_dNZjdffzUk-5r5f4eeg4",
   authDomain: "my-body-diary-87676.firebaseapp.com",
+  databaseURL: "https://my-body-diary-87676-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "my-body-diary-87676",
   storageBucket: "my-body-diary-87676.firebasestorage.app",
   messagingSenderId: "524921255290",
