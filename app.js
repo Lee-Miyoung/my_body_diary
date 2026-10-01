@@ -927,27 +927,6 @@ function bookText(value){
   return escapeBookHtml(value).replace(/\n/g,"<br>");
 }
 
-function loadHtml2PdfLibrary(){
-  if(window.html2pdf) return Promise.resolve(window.html2pdf);
-
-  return new Promise((resolve,reject)=>{
-    const existing=document.querySelector('script[data-body-diary-pdf]');
-    if(existing){
-      existing.addEventListener("load",()=>resolve(window.html2pdf),{once:true});
-      existing.addEventListener("error",()=>reject(new Error("PDF 도구를 불러오지 못했습니다.")),{once:true});
-      return;
-    }
-
-    const script=document.createElement("script");
-    script.src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js";
-    script.async=true;
-    script.dataset.bodyDiaryPdf="1";
-    script.onload=()=>resolve(window.html2pdf);
-    script.onerror=()=>reject(new Error("PDF 도구를 불러오지 못했습니다."));
-    document.head.appendChild(script);
-  });
-}
-
 function bookField(label,value){
   const text=String(value||"").trim();
   if(!text) return "";
@@ -962,6 +941,7 @@ function makeBookEntryHtml(dateKey,value,index,total){
   const photos=Array.isArray(value.photos)?value.photos:[];
   const age=ageTextForKey(dateKey);
   const condition=conditionTextFromValue(value.condition||3);
+
   const photoHtml=photos.length
     ? `<div class="book-photo-grid">${photos.map((src,i)=>`
         <figure class="book-photo">
@@ -970,10 +950,11 @@ function makeBookEntryHtml(dateKey,value,index,total){
     : "";
 
   return `
-    <section class="book-entry">
+    <section class="book-entry page">
       <div class="book-entry-number">${String(index+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}</div>
       <div class="book-entry-date">${escapeBookHtml(formatKoreanShortDate(dateKey))}</div>
       <div class="book-entry-age">${escapeBookHtml(age)}</div>
+
       <div class="book-entry-chips">
         <span>컨디션 · ${escapeBookHtml(condition)}</span>
         ${value.mood ? `<span>기분 · ${escapeBookHtml(value.mood)}</span>` : ""}
@@ -993,15 +974,176 @@ function makeBookEntryHtml(dateKey,value,index,total){
     </section>`;
 }
 
-function waitForBookImages(root){
-  const images=[...root.querySelectorAll("img")];
-  return Promise.all(images.map(img=>{
-    if(img.complete) return Promise.resolve();
-    return new Promise(resolve=>{
-      img.onload=resolve;
-      img.onerror=resolve;
-    });
-  }));
+function buildBookPrintHtml(rows){
+  const firstDate=rows[0].key;
+  const lastDate=rows[rows.length-1].key;
+  const exportDate=ymdKey(seoulYMD());
+  const titleName=escapeBookHtml(userProfile.name||"나");
+
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>몸의 일기 · ${titleName}</title>
+<style>
+  @page{size:A4;margin:0}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#eee8e3;color:#2f2926}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .print-toolbar{
+    position:sticky;top:0;z-index:9999;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:12px 14px;background:#211d1b;color:#fff;
+    font-size:13px
+  }
+  .print-toolbar button{
+    border:0;border-radius:999px;padding:10px 16px;
+    background:#fff;color:#211d1b;font-weight:800
+  }
+  .book{width:210mm;margin:0 auto;background:#fffaf7}
+  .page{
+    position:relative;
+    width:210mm;
+    min-height:297mm;
+    padding:18mm 17mm 18mm;
+    background:#fffaf7;
+    page-break-after:always;
+    break-after:page;
+    overflow:hidden
+  }
+  .page:last-child{page-break-after:auto;break-after:auto}
+
+  .cover{
+    display:flex;flex-direction:column;justify-content:center;
+    background:
+      radial-gradient(circle at 88% 10%,rgba(228,137,158,.22),transparent 70mm),
+      radial-gradient(circle at 8% 94%,rgba(130,195,166,.20),transparent 65mm),
+      linear-gradient(180deg,#fffaf7,#f8f0ea)
+  }
+  .kicker{font-size:10pt;font-weight:800;letter-spacing:.28em;color:#9d7d83;margin-bottom:7mm}
+  .cover h1{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:38pt;line-height:1.18;letter-spacing:-.05em}
+  .cover-name{margin:7mm 0 0;font-size:17pt;color:#6d625c}
+  .cover-line{width:28mm;height:1mm;margin:13mm 0 9mm;border-radius:99px;background:linear-gradient(90deg,#df8196,#a78bd3,#7fbda2)}
+  .cover-copy{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:15pt;line-height:1.8;color:#5a504a}
+  .cover-meta{display:grid;grid-template-columns:1fr;gap:3mm;margin-top:18mm;max-width:115mm}
+  .cover-meta div{padding:4mm 5mm;border:1px solid #eadcd4;border-radius:4mm;background:rgba(255,255,255,.70)}
+  .cover-meta span{display:block;font-size:8.5pt;color:#9c8d84;margin-bottom:1.5mm}
+  .cover-meta strong{font-size:10.5pt;line-height:1.45}
+
+  .opening,.ending{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    background:linear-gradient(145deg,#fae8ed,#f5f0fb 50%,#e9f3ed)
+  }
+  .opening p,.ending p{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:21pt;line-height:1.8;color:#544945}
+  .opening strong,.ending strong{display:block;margin-top:8mm;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:16pt;line-height:1.65}
+  .ending small{margin-top:9mm;font-size:9pt;color:#90837b}
+
+  .book-entry-number{font-size:8.5pt;font-weight:800;letter-spacing:.16em;color:#a38f85;margin-bottom:7mm}
+  .book-entry-date{font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:27pt;line-height:1.2;font-weight:600;letter-spacing:-.04em}
+  .book-entry-age{margin-top:2mm;font-size:10pt;color:#8d8179}
+  .book-entry-chips{display:flex;flex-wrap:wrap;gap:2mm;margin-top:5mm}
+  .book-entry-chips span{padding:2mm 3mm;border-radius:999px;background:#f2e9f5;color:#755f88;font-size:8.5pt;font-weight:700}
+
+  .book-photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;margin:8mm 0 8mm}
+  .book-photo{margin:0;overflow:hidden;border-radius:4mm;background:#efe9e4}
+  .book-photo img{display:block;width:100%;height:62mm;object-fit:cover}
+  .book-photo-grid .book-photo:only-child img{height:86mm}
+
+  .book-fields{display:grid;gap:4mm;margin-top:7mm}
+  .book-field{padding:4mm 0;border-top:1px solid #e9ddd5;break-inside:avoid}
+  .book-field-label{font-size:8.5pt;font-weight:800;letter-spacing:.06em;color:#9b8178;margin-bottom:2mm}
+  .book-field-text{
+    font-family:Georgia,"Apple SD Gothic Neo",serif;
+    font-size:12.5pt;line-height:1.75;letter-spacing:-.025em;
+    color:#3f3935;white-space:normal;word-break:keep-all;overflow-wrap:anywhere
+  }
+
+  .note{
+    position:fixed;left:12px;right:12px;bottom:12px;
+    padding:10px 12px;border-radius:12px;background:rgba(33,29,27,.92);
+    color:#fff;font-size:12px;z-index:9998;text-align:center
+  }
+
+  @media print{
+    html,body{background:#fff}
+    .print-toolbar,.note{display:none!important}
+    .book{margin:0;width:210mm}
+  }
+
+  @media screen and (max-width:900px){
+    .book{width:100%}
+    .page{width:100%;min-height:auto;padding:34px 24px 60px}
+    .cover{min-height:100vh}
+    .opening,.ending{min-height:100vh}
+    .book-photo-grid{grid-template-columns:1fr}
+    .book-photo img,.book-photo-grid .book-photo:only-child img{height:auto;max-height:65vh;object-fit:contain}
+  }
+</style>
+</head>
+<body>
+  <div class="print-toolbar">
+    <span>몸의 일기 전체본 · ${rows.length}일</span>
+    <button onclick="window.print()">PDF로 저장 / 인쇄</button>
+  </div>
+
+  <main class="book">
+    <section class="page cover">
+      <div class="kicker">MY BODY DIARY</div>
+      <h1>몸이 기억하는 시간</h1>
+      <p class="cover-name">${titleName}의 몸의 일기</p>
+      <div class="cover-line"></div>
+      <p class="cover-copy">몸은 매일 조금씩 달라지고,<br>기록은 그 시간을 잊지 않게 해줍니다.</p>
+
+      <div class="cover-meta">
+        <div><span>나의 시작일</span><strong>${escapeBookHtml(birthText(userProfile.birthDate))}</strong></div>
+        <div><span>기록 기간</span><strong>${escapeBookHtml(formatArchiveDate(firstDate))} - ${escapeBookHtml(formatArchiveDate(lastDate))}</strong></div>
+        <div><span>기록 수</span><strong>${rows.length}일</strong></div>
+      </div>
+    </section>
+
+    <section class="page opening">
+      <p>아픈 날도, 가벼운 날도,<br>아무렇지 않은 날도.</p>
+      <strong>이 책은 내가 지나온 몸의 시간입니다.</strong>
+    </section>
+
+    ${rows.map((row,index)=>makeBookEntryHtml(row.key,row.value,index,rows.length)).join("")}
+
+    <section class="page ending">
+      <p>오늘까지의 몸을 기록했습니다.</p>
+      <strong>${titleName}의 몸의 시간은 계속됩니다.</strong>
+      <small>PDF 생성일 · ${escapeBookHtml(formatArchiveDate(exportDate))}</small>
+    </section>
+  </main>
+
+  <div class="note">화면이 모두 뜬 뒤 위의 <b>PDF로 저장 / 인쇄</b> 버튼을 누르세요.</div>
+
+<script>
+(function(){
+  function waitForImages(){
+    var imgs=[].slice.call(document.images||[]);
+    return Promise.all(imgs.map(function(img){
+      if(img.complete) return Promise.resolve();
+      return new Promise(function(resolve){
+        img.onload=resolve;
+        img.onerror=resolve;
+      });
+    }));
+  }
+  waitForImages().then(function(){
+    document.title="몸의일기_${String(userProfile?.name||"나").replace(/[\\/:*?"<>|]/g,"_")}_${exportDate}";
+    setTimeout(function(){
+      try{ window.print(); }catch(e){}
+    },700);
+  });
+})();
+<\/script>
+</body>
+</html>`;
 }
 
 async function exportDiaryBookPdf(){
@@ -1009,95 +1151,57 @@ async function exportDiaryBookPdf(){
     alert("PDF 책 내보내기는 로그인 후 실제 기록에서 사용할 수 있습니다.");
     return;
   }
+
   if(!currentUser || !userProfile){
     alert("먼저 로그인해주세요.");
     return;
   }
 
+  // iPhone Safari의 팝업 차단을 피하기 위해 클릭 순간 새 창을 먼저 엽니다.
+  const printWindow=window.open("","_blank");
+
+  if(!printWindow){
+    alert("PDF 화면을 열 수 없습니다. 브라우저의 팝업 차단을 해제해주세요.");
+    return;
+  }
+
+  printWindow.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;padding:30px;background:#fffaf7;color:#332e2a"><h2>몸의 일기 책을 준비하고 있습니다…</h2><p>저장된 기록과 사진을 불러오는 중입니다.</p></body></html>`);
+  printWindow.document.close();
+
   const oldText=els.pdfBtn.textContent;
   els.pdfBtn.disabled=true;
   els.pdfBtn.textContent="책 만드는 중…";
 
-  let book=null;
-
   try{
     const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
     const rows=[];
-    snap.forEach(child=>rows.push({key:child.key,value:child.val()||{}}));
+
+    snap.forEach(child=>{
+      rows.push({
+        key:child.key,
+        value:child.val()||{}
+      });
+    });
+
     rows.sort((a,b)=>a.key.localeCompare(b.key));
 
     if(!rows.length){
+      printWindow.close();
       alert("아직 PDF로 만들 일기가 없습니다.");
       return;
     }
 
-    await loadHtml2PdfLibrary();
+    const html=buildBookPrintHtml(rows);
 
-    const firstDate=rows[0].key;
-    const lastDate=rows[rows.length-1].key;
-    const exportDate=ymdKey(seoulYMD());
-
-    book=document.createElement("div");
-    book.className="body-book-export";
-    book.innerHTML=`
-      <section class="book-cover">
-        <div class="book-cover-kicker">MY BODY DIARY</div>
-        <h1>몸이 기억하는 시간</h1>
-        <p class="book-cover-name">${escapeBookHtml(userProfile.name||"나")}의 몸의 일기</p>
-        <div class="book-cover-line"></div>
-        <p class="book-cover-copy">몸은 매일 조금씩 달라지고,<br>기록은 그 시간을 잊지 않게 해줍니다.</p>
-        <div class="book-cover-meta">
-          <div><span>나의 시작일</span><strong>${escapeBookHtml(birthText(userProfile.birthDate))}</strong></div>
-          <div><span>기록 기간</span><strong>${escapeBookHtml(formatArchiveDate(firstDate))} - ${escapeBookHtml(formatArchiveDate(lastDate))}</strong></div>
-          <div><span>기록 수</span><strong>${rows.length}일</strong></div>
-        </div>
-      </section>
-
-      <section class="book-opening">
-        <p>아픈 날도, 가벼운 날도,<br>아무렇지 않은 날도.</p>
-        <strong>이 책은 내가 지나온 몸의 시간입니다.</strong>
-      </section>
-
-      ${rows.map((row,index)=>makeBookEntryHtml(row.key,row.value,index,rows.length)).join("")}
-
-      <section class="book-ending">
-        <p>오늘까지의 몸을 기록했습니다.</p>
-        <strong>${escapeBookHtml(userProfile.name||"나")}의 몸의 시간은 계속됩니다.</strong>
-        <small>PDF 생성일 · ${escapeBookHtml(formatArchiveDate(exportDate))}</small>
-      </section>`;
-
-    document.body.appendChild(book);
-    await waitForBookImages(book);
-    await new Promise(resolve=>setTimeout(resolve,350));
-
-    const safeName=String(userProfile.name||"나")
-      .replace(/[\\/:*?"<>|]/g,"_")
-      .trim() || "나";
-
-    const options={
-      margin:[12,10,14,10],
-      filename:`몸의일기_${safeName}_${exportDate}.pdf`,
-      image:{type:"jpeg",quality:0.92},
-      html2canvas:{
-        scale:2,
-        useCORS:true,
-        allowTaint:true,
-        backgroundColor:"#fffaf7",
-        logging:false,
-        scrollX:0,
-        scrollY:0
-      },
-      jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-      pagebreak:{mode:["css","legacy"],before:".book-entry",after:[".book-cover",".book-opening"]}
-    };
-
-    await window.html2pdf().set(options).from(book).save();
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
 
   }catch(err){
     console.error(err);
-    alert("PDF를 만드는 중 문제가 생겼습니다. 사진이 아주 많다면 기록을 조금 나눠서 시도해주세요.");
+    try{ printWindow.close(); }catch(_){}
+    alert("PDF용 책을 만드는 중 문제가 생겼습니다.");
   }finally{
-    if(book) book.remove();
     els.pdfBtn.disabled=false;
     els.pdfBtn.textContent=oldText;
   }
