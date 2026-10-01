@@ -860,3 +860,203 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .gallery-prev{left:5px!important}
   .gallery-next{right:5px!important}
 }
+
+
+/* ===== 전체 일기 PDF 책 내보내기 ===== */
+.body-book-export{
+  position:fixed;
+  left:-12000px;
+  top:0;
+  z-index:-1000;
+  width:794px;
+  background:#fffaf7;
+  color:#2f2926;
+  font-family:"Noto Serif KR","Apple SD Gothic Neo",serif;
+}
+.body-book-export *{box-sizing:border-box}
+.book-cover,
+.book-opening,
+.book-entry,
+.book-ending{
+  width:100%;
+  min-height:1040px;
+  padding:72px 68px;
+  background:#fffaf7;
+}
+.book-cover{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 88% 10%,rgba(228,137,158,.20),transparent 250px),
+    radial-gradient(circle at 8% 94%,rgba(130,195,166,.18),transparent 230px),
+    linear-gradient(180deg,#fffaf7,#f8f0ea);
+}
+.book-cover-kicker{
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.30em;
+  color:#9d7d83;
+  margin-bottom:18px;
+}
+.book-cover h1{
+  margin:0;
+  font-size:58px;
+  line-height:1.2;
+  letter-spacing:-.055em;
+  font-weight:600;
+}
+.book-cover-name{
+  margin:18px 0 0;
+  font-size:24px;
+  color:#6d625c;
+}
+.book-cover-line{
+  width:82px;
+  height:3px;
+  margin:42px 0 28px;
+  border-radius:99px;
+  background:linear-gradient(90deg,#df8196,#a78bd3,#7fbda2);
+}
+.book-cover-copy{
+  margin:0;
+  font-size:20px;
+  line-height:1.8;
+  color:#5a504a;
+}
+.book-cover-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+  margin-top:64px;
+}
+.book-cover-meta>div{
+  padding:16px 14px;
+  border:1px solid #eadcd4;
+  border-radius:16px;
+  background:rgba(255,255,255,.65);
+}
+.book-cover-meta span{
+  display:block;
+  margin-bottom:5px;
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:10px;
+  color:#9c8d84;
+}
+.book-cover-meta strong{font-size:13px;line-height:1.45}
+.book-opening,
+.book-ending{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  background:linear-gradient(145deg,#fae8ed,#f5f0fb 50%,#e9f3ed);
+}
+.book-opening p,
+.book-ending p{
+  margin:0;
+  font-size:29px;
+  line-height:1.85;
+  color:#544945;
+}
+.book-opening strong,
+.book-ending strong{
+  display:block;
+  margin-top:24px;
+  font-size:22px;
+  line-height:1.65;
+}
+.book-ending small{
+  display:block;
+  margin-top:26px;
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:11px;
+  color:#90837b;
+}
+.book-entry{
+  min-height:1040px;
+  padding-top:58px;
+  break-before:page;
+  page-break-before:always;
+  background:#fffaf7;
+}
+.book-entry-number{
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:10px;
+  letter-spacing:.20em;
+  color:#b09e93;
+}
+.book-entry-date{
+  margin-top:13px;
+  font-size:37px;
+  line-height:1.25;
+  letter-spacing:-.05em;
+  font-weight:600;
+}
+.book-entry-age{
+  margin-top:7px;
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:12px;
+  color:#877870;
+}
+.book-entry-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:18px 0 26px;
+}
+.book-entry-chips span{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f3eaf2;
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:10px;
+  color:#715f70;
+}
+.book-photo-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:0 0 26px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.book-photo{
+  margin:0;
+  overflow:hidden;
+  border-radius:14px;
+  background:#eee7e2;
+}
+.book-photo img{
+  display:block;
+  width:100%;
+  max-height:330px;
+  object-fit:cover;
+}
+.book-fields{display:grid;gap:13px}
+.book-field{
+  padding:15px 16px;
+  border-radius:15px;
+  border:1px solid #ebdfd7;
+  background:#fff;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.book-field-label{
+  margin-bottom:7px;
+  font-family:"Inter","Apple SD Gothic Neo",sans-serif;
+  font-size:10px;
+  font-weight:800;
+  color:#a06c79;
+  letter-spacing:.04em;
+}
+.book-field-text{
+  font-size:15px;
+  line-height:1.78;
+  letter-spacing:-.025em;
+  color:#3e3733;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
