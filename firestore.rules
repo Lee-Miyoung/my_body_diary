@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedInAs(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read, write: if signedInAs(userId);
+
+      match /diary/{entryId} {
+        allow read: if signedInAs(userId);
+
+        allow create, update: if signedInAs(userId)
+          && request.resource.data.date == entryId
+          && request.resource.data.birthDate == "1976-11-30"
+          && request.resource.data.condition is int
+          && request.resource.data.condition >= 1
+          && request.resource.data.condition <= 5;
+
+        allow delete: if signedInAs(userId);
+      }
+    }
+  }
+}
