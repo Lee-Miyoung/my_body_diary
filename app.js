@@ -4,7 +4,7 @@ import {
   getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import {
-  getDatabase, ref, set, get, query, orderByKey, limitToLast
+  getDatabase, ref, set, get, remove, query, orderByKey, limitToLast, startAt, endAt
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 const TZ = "Asia/Seoul";
@@ -37,7 +37,11 @@ const els = {
   googleLoginBtn:$("googleLoginBtn"), loginMessage:$("loginMessage"),
   previewBtn:$("previewBtn"), previewBanner:$("previewBanner"), previewStory:$("previewStory"), previewCTA:$("previewCTA"), previewStartBtn:$("previewStartBtn"), exitPreviewBtn:$("exitPreviewBtn"),
   logoutBtn:$("logoutBtn"), profileBtn:$("profileBtn"), saveState:$("saveState"),
+  recordContext:$("recordContext"), recordContextLabel:$("recordContextLabel"), recordContextDate:$("recordContextDate"),
+  journalEyebrow:$("journalEyebrow"), journalTitle:$("journalTitle"), journalSubtitle:$("journalSubtitle"),
+  backTodayBtn:$("backTodayBtn"), deleteEntryBtn:$("deleteEntryBtn"),
   recentEntries:$("recentEntries"), archiveDate:$("archiveDate"), loadDateBtn:$("loadDateBtn"),
+  calendarTitle:$("calendarTitle"), calendarGrid:$("calendarGrid"), calendarPrevBtn:$("calendarPrevBtn"), calendarNextBtn:$("calendarNextBtn"),
   profileName:$("profileName"), profileBirthDate:$("profileBirthDate"),
   profileSaveBtn:$("profileSaveBtn"), profileCancelBtn:$("profileCancelBtn"),
   profileTitle:$("profileTitle"), profileDescription:$("profileDescription"), profileEyebrow:$("profileEyebrow"),
@@ -56,6 +60,9 @@ let currentPhotos = [];
 let galleryItems = [];
 let galleryIndex = 0;
 let previewMode = false;
+let calendarCursor = seoulYMD();
+let calendarRecordDates = new Set();
+let loadedEntryExists = false;
 
 function seoulYMD(date = new Date()){
   const parts = new Intl.DateTimeFormat("en-CA",{
@@ -151,6 +158,9 @@ function resetUserScreen(){
   els.birthDateText.textContent="비공개";
   els.ageText.textContent="—";
   els.todayText.textContent="";
+  loadedEntryExists=false;
+  els.deleteEntryBtn.classList.add("hidden");
+  els.backTodayBtn.classList.add("hidden");
   setSaveState("저장 전");
 }
 
@@ -253,8 +263,11 @@ async function saveEntry(){
     const data=payload();
     data.createdAt=old.exists() && old.val().createdAt ? old.val().createdAt : Date.now();
     await set(target,data);
-    setSaveState("저장됨",true);
+    loadedEntryExists=true;
+    setRecordMode(selectedDateKey,true);
+    setSaveState(selectedDateKey===ymdKey(seoulYMD())?"오늘 기록 저장됨":"지난 기록 수정 저장됨",true);
     await loadRecentEntries();
+    await loadCalendarMonth(calendarCursor.y,calendarCursor.m);
   }catch(err){
     console.error(err);
     setSaveState("저장 실패");
@@ -267,17 +280,20 @@ async function saveEntry(){
 async function loadEntry(dateKey){
   if(!currentUser || !userProfile) return;
 
-  // 상단 배너는 항상 '오늘'을 유지합니다.
-  // 과거 일기를 열어도 오늘 날짜/오늘 나이는 바뀌지 않습니다.
   const snap=await get(entryRef(currentUser.uid,dateKey));
-
   selectedDateKey=dateKey;
   els.archiveDate.value=dateKey;
 
+  const [y,m,d]=dateKey.split("-").map(Number);
+  calendarCursor={y,m,d:1};
+
   clearForm(true);
+  setRecordMode(dateKey,snap.exists());
 
   if(!snap.exists()){
     setSaveState(`${formatArchiveDate(dateKey)} · 새 기록`);
+    await loadCalendarMonth(calendarCursor.y,calendarCursor.m);
+    document.querySelector(".journal-card")?.scrollIntoView({behavior:"smooth",block:"start"});
     return;
   }
 
@@ -289,18 +305,46 @@ async function loadEntry(dateKey){
   renderPhotos();
 
   const todayKey=ymdKey(seoulYMD());
-  if(dateKey===todayKey){
-    setSaveState("오늘 기록",true);
-  }else{
-    setSaveState(`${formatArchiveDate(dateKey)} 기록 보는 중`,true);
-  }
-
-  window.scrollTo({top:0,behavior:"smooth"});
+  setSaveState(dateKey===todayKey?"오늘 기록":`${formatArchiveDate(dateKey)} 기록 수정 가능`,true);
+  await loadCalendarMonth(calendarCursor.y,calendarCursor.m);
+  document.querySelector(".journal-card")?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function formatArchiveDate(dateKey){
   const [y,m,d]=dateKey.split("-");
   return `${y}. ${m}. ${d}`;
+}
+function formatKoreanShortDate(dateKey){
+  const [y,m,d]=dateKey.split("-").map(Number);
+  return `${y}년 ${m}월 ${d}일`;
+}
+function setRecordMode(dateKey,exists=false){
+  const todayKey=ymdKey(seoulYMD());
+  const isToday=dateKey===todayKey;
+  loadedEntryExists=!!exists;
+
+  els.recordContext.classList.toggle("past-context",!isToday);
+  els.recordContext.classList.toggle("today-context",isToday);
+  els.backTodayBtn.classList.toggle("hidden",isToday);
+  els.deleteEntryBtn.classList.toggle("hidden",isToday || !exists || previewMode);
+
+  if(isToday){
+    els.recordContextLabel.textContent="오늘 기록";
+    els.recordContextDate.textContent=koreanDate(seoulYMD());
+    els.journalEyebrow.textContent="TODAY";
+    els.journalTitle.textContent="오늘의 몸";
+    els.journalSubtitle.textContent="평가하지 말고, 느껴지는 만큼만 적어보세요.";
+    els.saveBtn.textContent="오늘의 일기 저장";
+  }else{
+    els.recordContextLabel.textContent=exists?"지난 기록 수정 중":"지난 날짜 새 기록";
+    els.recordContextDate.textContent=`${formatKoreanShortDate(dateKey)} · ${ageTextForKey(dateKey)}`;
+    els.journalEyebrow.textContent=exists?"PAST RECORD · EDIT":"PAST DATE · NEW";
+    els.journalTitle.textContent=`${formatKoreanShortDate(dateKey)}의 몸`;
+    els.journalSubtitle.textContent=exists
+      ? "이 날짜에 남긴 기록입니다. 내용을 고친 뒤 저장하면 수정됩니다."
+      : "선택한 날짜의 새 기록을 남길 수 있습니다.";
+    els.saveBtn.textContent=exists?"이 날짜 기록 수정 저장":"이 날짜 일기 저장";
+  }
 }
 function conditionTextFromValue(v){
   return ({1:"매우 힘듦",2:"조금 힘듦",3:"보통",4:"좋음",5:"아주 좋음"})[Number(v)]||"보통";
@@ -308,6 +352,102 @@ function conditionTextFromValue(v){
 function buildEntryPreview(value){
   return value.bodyNote||value.food||value.pain||value.mood||value.movement||"기록이 저장되어 있습니다.";
 }
+async function loadCalendarMonth(year,month){
+  calendarCursor={y:year,m:month,d:1};
+  els.calendarTitle.textContent=`${year}년 ${month}월`;
+
+  if(previewMode){
+    calendarRecordDates=new Set(["2026-09-07","2026-09-20","2026-09-28"]);
+    renderCalendar(year,month);
+    return;
+  }
+  if(!currentUser){
+    calendarRecordDates=new Set();
+    renderCalendar(year,month);
+    return;
+  }
+
+  try{
+    const start=`${year}-${String(month).padStart(2,"0")}-01`;
+    const end=`${year}-${String(month).padStart(2,"0")}-31`;
+    const q=query(ref(db,`users/${currentUser.uid}/diary`),orderByKey(),startAt(start),endAt(end));
+    const snap=await get(q);
+    const dates=new Set();
+    snap.forEach(child=>dates.add(child.key));
+    calendarRecordDates=dates;
+  }catch(err){
+    console.error("calendar load failed",err);
+    calendarRecordDates=new Set();
+  }
+  renderCalendar(year,month);
+}
+
+function renderCalendar(year,month){
+  const grid=els.calendarGrid;
+  grid.innerHTML="";
+  const first=new Date(Date.UTC(year,month-1,1));
+  const firstDay=first.getUTCDay();
+  const daysInMonth=new Date(Date.UTC(year,month,0)).getUTCDate();
+  const todayKey=ymdKey(seoulYMD());
+
+  for(let i=0;i<firstDay;i++){
+    const blank=document.createElement("span");
+    blank.className="calendar-blank";
+    grid.appendChild(blank);
+  }
+
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="calendar-day";
+    btn.dataset.date=key;
+    if(key===todayKey) btn.classList.add("is-today");
+    if(key===selectedDateKey) btn.classList.add("is-selected");
+    if(calendarRecordDates.has(key)) btn.classList.add("has-record");
+    btn.innerHTML=`<span>${d}</span>${calendarRecordDates.has(key)?'<i></i>':''}`;
+    btn.addEventListener("click",()=>{
+      if(previewMode){
+        els.archiveDate.value=key;
+        return;
+      }
+      loadEntry(key);
+    });
+    grid.appendChild(btn);
+  }
+}
+
+function moveCalendarMonth(delta){
+  let y=calendarCursor.y;
+  let m=calendarCursor.m+delta;
+  if(m<1){m=12;y--;}
+  if(m>12){m=1;y++;}
+  loadCalendarMonth(y,m);
+}
+
+async function deleteCurrentEntry(){
+  if(previewMode || !currentUser || !selectedDateKey || !loadedEntryExists) return;
+  const label=formatKoreanShortDate(selectedDateKey);
+  const ok=confirm(`${label} 기록을 삭제할까요?\n\n삭제하면 되돌릴 수 없습니다.`);
+  if(!ok) return;
+
+  try{
+    els.deleteEntryBtn.disabled=true;
+    await remove(entryRef(currentUser.uid,selectedDateKey));
+    await loadRecentEntries();
+    await loadCalendarMonth(calendarCursor.y,calendarCursor.m);
+    alert(`${label} 기록을 삭제했습니다.`);
+    const today=ymdKey(seoulYMD());
+    updateHeader(seoulYMD());
+    await loadEntry(today);
+  }catch(err){
+    console.error(err);
+    alert("기록을 삭제하지 못했습니다.");
+  }finally{
+    els.deleteEntryBtn.disabled=false;
+  }
+}
+
 async function loadRecentEntries(){
   if(!currentUser || !userProfile) return;
   els.recentEntries.innerHTML='<p class="muted">불러오는 중…</p>';
@@ -560,6 +700,8 @@ async function startDiary(){
   const today=ymdKey(seoulYMD());
   await loadEntry(today);
   await loadRecentEntries();
+  const now=seoulYMD();
+  await loadCalendarMonth(now.y,now.m);
 }
 
 function renderPreviewEntries(){
@@ -701,6 +843,9 @@ function enterPreviewMode(){
   currentPhotos=[];
   renderPhotos();
   renderPreviewEntries();
+  setRecordMode("2026-10-01",false);
+  calendarCursor={y:2026,m:9,d:1};
+  loadCalendarMonth(2026,9);
   setSaveState("가상 기록 미리보기");
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -767,6 +912,15 @@ function setupEvents(){
   els.profileBtn.addEventListener("click",openProfileEditor);
   els.profileCancelBtn.addEventListener("click",()=>els.profileLayer.classList.add("hidden"));
   els.profileSaveBtn.addEventListener("click",saveProfile);
+  els.backTodayBtn.addEventListener("click",()=>{
+    if(previewMode) return;
+    const now=seoulYMD();
+    updateHeader(now);
+    loadEntry(ymdKey(now));
+  });
+  els.deleteEntryBtn.addEventListener("click",deleteCurrentEntry);
+  els.calendarPrevBtn.addEventListener("click",()=>moveCalendarMonth(-1));
+  els.calendarNextBtn.addEventListener("click",()=>moveCalendarMonth(1));
   els.previewBtn.addEventListener("click",enterPreviewMode);
   els.exitPreviewBtn.addEventListener("click",exitPreviewMode);
   els.previewStartBtn.addEventListener("click",exitPreviewMode);
