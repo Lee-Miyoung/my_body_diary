@@ -1,12 +1,25 @@
-몸의 일기 6명 전용 버전
+몸의 일기 - 6명 전용 / 감성 컬러 최종본
 
-1. firebase-config.js의 BODY_DIARY_ALLOWED_EMAILS 6칸을 실제 Google 이메일로 바꿉니다.
-2. GitHub에 index.html / style.css / app.js / firebase-config.js를 덮어씁니다.
-3. database.rules.json 내용은 Firebase Realtime Database > 규칙에 게시합니다.
-4. 기존 사용자는 일기 데이터에 저장된 birthDate를 자동으로 읽어 profile로 마이그레이션합니다.
-5. 새 사용자 5명은 첫 로그인 때 이름/별칭과 생년월일을 한 번 입력합니다.
-6. 이후 각 사용자는 자기 UID 아래의 profile/diary만 읽고 쓸 수 있습니다.
+[이번 버전에서 바뀐 점]
+- 상단 소개문을 감성적인 문장으로 전면 수정
+- 로즈/피치/버터/민트/바이올렛/스카이 컬러를 다시 살림
+- 로그인 없이 디자인 미리보기 가능
+- 미리보기에는 실제 이름/생년월일/기록을 절대 사용하지 않음
+- 새 사용자는 첫 로그인 때 자기 이름/생년월일을 직접 입력
+- 기존 사용자(소유자 UID)만 과거 일기의 생년월일 자동 이전
+- 로그인 계정이 바뀌면 화면에 남아 있던 이전 사용자 정보를 즉시 초기화
+- 로그인 후 '내 정보'에서 이름/생년월일 수정 가능
+- 지난 몸의 일기에 날짜 + 그날의 나이 + 컨디션 + 사진 수 표시
+- 각 사용자의 데이터는 users/{자기 UID} 아래로 분리
 
-주의:
-- 앱 화면에서는 지정한 6개 이메일만 새 계정으로 진입하도록 막습니다.
-- Realtime Database Rules는 각 사용자가 자기 UID 데이터만 읽고 쓰도록 막습니다.
+[중요]
+1. GitHub에는 index.html / style.css / app.js / firebase-config.js를 교체하세요.
+2. Firebase Realtime Database > 규칙에는 database.rules.json 내용을 붙여넣고 게시하세요.
+3. 현재 서버 규칙에는 아래 2명만 허용되어 있습니다.
+   - song4mi12@gmail.com
+   - wonmigood@naver.com
+4. 3~6번째 사용자를 추가할 때는 firebase-config.js의 이메일 목록과 database.rules.json의 이메일 허용 조건을 둘 다 추가해야 합니다.
+5. Firebase 규칙을 바꿔도 기존 데이터 자체가 삭제되지는 않습니다.
+
+[백업 권장]
+Realtime Database > 데이터 메뉴에서 정기적으로 JSON 내보내기 백업을 보관하세요.
