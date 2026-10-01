@@ -432,3 +432,166 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .topbar,.privacy-note,.button-row,.photo-picker,.archive-tools,#recentEntries,footer,.overlay-layer,.gallery-modal,.preview-banner,.ambient{display:none!important}
   body{background:#fff}.app-shell{width:100%;padding:0}.card,.hero-card{box-shadow:none;border:0}
 }
+
+
+/* ===== 감성 미리보기 스토리 ===== */
+.preview-story{
+  position:relative;
+  overflow:hidden;
+  padding:30px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(228,137,158,.12),transparent 19rem),
+    radial-gradient(circle at 0% 100%,rgba(130,195,166,.14),transparent 18rem),
+    rgba(255,251,248,.97);
+  border:1px solid rgba(232,220,211,.95);
+  box-shadow:var(--shadow)
+}
+.preview-story:after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  right:-70px;
+  bottom:-90px;
+  background:rgba(165,143,215,.10)
+}
+.preview-story-head{
+  position:relative;
+  z-index:2;
+  max-width:650px;
+  margin-bottom:24px
+}
+.preview-story-head h3{
+  margin:7px 0 10px;
+  font:600 29px/1.45 "Noto Serif KR",serif;
+  letter-spacing:-.035em;
+  color:#332e2a
+}
+.preview-story-head>p:last-child{
+  margin:0;
+  font:400 15px/1.9 "Noto Serif KR",serif;
+  color:#766a63
+}
+.preview-moment-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px
+}
+.preview-moment{
+  min-height:170px;
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(229,217,210,.9);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  box-shadow:0 10px 24px rgba(79,59,49,.05)
+}
+.preview-moment span{
+  display:inline-flex;
+  align-self:flex-start;
+  padding:5px 8px;
+  margin-bottom:auto;
+  border-radius:999px;
+  background:rgba(255,255,255,.72);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.07em;
+  color:#8c7d74
+}
+.preview-moment strong{
+  display:block;
+  margin:18px 0 7px;
+  font:600 17px/1.55 "Noto Serif KR",serif;
+  color:#3a342f
+}
+.preview-moment p{
+  margin:0;
+  font-size:10px;
+  line-height:1.7;
+  color:#81766f
+}
+.pm-rose{background:linear-gradient(145deg,#fbe6ea,#fffaf7)}
+.pm-mint{background:linear-gradient(145deg,#e4f2eb,#fffaf7)}
+.pm-violet{background:linear-gradient(145deg,#eee9f8,#fffaf7)}
+
+.preview-things{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:22px 0 18px
+}
+.preview-things span{
+  padding:8px 11px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:700;
+  color:#6f655f;
+  border:1px solid rgba(232,219,211,.92);
+  background:#fffdfa
+}
+.preview-things span:nth-child(1){background:var(--rose-soft)}
+.preview-things span:nth-child(2){background:var(--mint-soft)}
+.preview-things span:nth-child(3){background:var(--violet-soft)}
+.preview-things span:nth-child(4){background:var(--butter-soft)}
+.preview-things span:nth-child(5){background:var(--sky-soft)}
+.preview-things span:nth-child(6){background:var(--peach-soft)}
+
+.preview-story blockquote{
+  position:relative;
+  z-index:2;
+  margin:6px 0 0;
+  padding:20px 22px;
+  border-left:3px solid #b88ca8;
+  background:rgba(255,255,255,.56);
+  border-radius:0 18px 18px 0;
+  font:500 18px/1.75 "Noto Serif KR",serif;
+  color:#4b433e
+}
+
+.preview-cta{
+  text-align:center;
+  padding:34px 24px;
+  border-radius:30px;
+  background:
+    linear-gradient(135deg,rgba(251,229,235,.96),rgba(238,232,251,.96) 48%,rgba(228,242,235,.96));
+  border:1px solid rgba(229,216,222,.95);
+  box-shadow:var(--shadow)
+}
+.preview-cta h3{
+  margin:8px 0 9px;
+  font:600 29px/1.45 "Noto Serif KR",serif;
+  color:#332e2a
+}
+.preview-cta>p:not(.eyebrow){
+  margin:0 0 19px;
+  font:400 14px/1.8 "Noto Serif KR",serif;
+  color:#766b64
+}
+.preview-cta button{
+  border:0;
+  border-radius:999px;
+  padding:13px 22px;
+  background:#2d2926;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  box-shadow:0 10px 25px rgba(45,41,38,.14)
+}
+
+@media(max-width:650px){
+  .preview-story{padding:22px 18px;border-radius:24px}
+  .preview-story-head h3{font-size:23px}
+  .preview-story-head>p:last-child{font-size:14px}
+  .preview-moment-grid{grid-template-columns:1fr}
+  .preview-moment{min-height:145px}
+  .preview-story blockquote{font-size:16px;padding:17px 18px}
+  .preview-cta{padding:28px 18px;border-radius:24px}
+  .preview-cta h3{font-size:24px}
+}
