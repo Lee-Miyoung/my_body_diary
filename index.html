@@ -5,19 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#f4efe7" />
   <title>몸의 일기</title>
-  <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <div id="appShell" class="app-shell">
+  <div class="app-shell">
     <header class="topbar">
       <div>
         <p class="eyebrow">MY BODY DIARY</p>
         <h1>몸의 일기</h1>
       </div>
+
       <div class="top-actions">
-        <button id="pdfBtn" class="icon-btn" type="button" aria-label="PDF 저장">PDF</button>
-        <button id="logoutBtn" class="icon-btn hidden" type="button" aria-label="로그아웃">나가기</button>
+        <button id="galleryBtn" class="icon-btn" type="button">사진</button>
+        <button id="pdfBtn" class="icon-btn" type="button">PDF</button>
+        <button id="logoutBtn" class="icon-btn hidden" type="button">나가기</button>
       </div>
     </header>
 
@@ -32,9 +33,9 @@
         <p class="small">1976. 11. 30부터 오늘까지, 나의 몸이 지나온 시간을 기록합니다.</p>
       </section>
 
-      <section id="authNotice" class="notice card">
-        <strong>비공개 모드</strong>
-        <span>Google 로그인 후 본인의 기록만 저장하고 불러옵니다.</span>
+      <section class="notice card">
+        <strong>PRIVATE</strong>
+        <span>Google 로그인한 본인 계정의 기록만 저장하고 불러옵니다.</span>
       </section>
 
       <section class="card">
@@ -59,6 +60,7 @@
             <span>수면</span>
             <input id="sleep" type="text" placeholder="예: 6시간 30분, 중간에 1회 깸" />
           </label>
+
           <label class="field">
             <span>몸의 불편함</span>
             <input id="pain" type="text" placeholder="예: 오른쪽 어깨 뻐근함" />
@@ -70,6 +72,7 @@
             <span>소화 · 배변</span>
             <input id="digestion" type="text" placeholder="예: 양호 / 더부룩함" />
           </label>
+
           <label class="field">
             <span>움직임 · 운동</span>
             <input id="movement" type="text" placeholder="예: 5km 러닝, 스트레칭" />
@@ -92,13 +95,19 @@
         </label>
 
         <div class="field">
-          <span>오늘의 사진</span>
+          <div class="field-title-row">
+            <span>오늘의 사진</span>
+            <small id="photoCountText">0장</small>
+          </div>
+
           <label class="photo-picker" for="photoInput">
             <span class="photo-plus">＋</span>
             <strong>사진 추가</strong>
-            <small>한 장당 8MB 이하 · JPG/PNG/WEBP</small>
+            <small>자동 압축 후 저장 · 하루 최대 3장</small>
           </label>
-          <input id="photoInput" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+
+          <input id="photoInput" class="sr-only" type="file" accept="image/*" multiple />
+
           <div id="photoPreview" class="photo-grid"></div>
         </div>
 
@@ -115,12 +124,14 @@
             <h2>지난 몸의 일기</h2>
           </div>
         </div>
+
         <div class="archive-tools">
           <input id="archiveDate" type="date" />
           <button id="loadDateBtn" class="secondary-btn" type="button">이 날짜 보기</button>
         </div>
+
         <div id="recentEntries" class="recent-list">
-          <p class="muted">로그인 후 저장된 기록이 여기에 표시됩니다.</p>
+          <p class="muted">로그인 후 기록이 표시됩니다.</p>
         </div>
       </section>
 
@@ -130,28 +141,53 @@
     </main>
   </div>
 
+  <!-- 로그인 -->
   <div id="loginLayer" class="login-layer">
     <div class="login-card">
       <p class="eyebrow">PRIVATE JOURNAL</p>
       <h2>나만의 몸의 일기</h2>
       <p class="login-copy">본인 Google 계정으로 로그인해 기록을 시작하세요.</p>
 
-      <button id="googleLoginBtn" class="primary-btn wide" type="button">
+      <button id="googleLoginBtn" class="google-btn" type="button">
+        <span class="google-mark">G</span>
         Google 계정으로 로그인
       </button>
 
       <p id="loginMessage" class="form-message"></p>
-      <p class="login-help">로그인 후에는 본인 계정의 기록만 저장하고 불러옵니다.</p>
     </div>
   </div>
 
-  <div id="setupLayer" class="setup-layer hidden">
+  <!-- Firebase 설정 전 -->
+  <div id="setupLayer" class="login-layer hidden">
     <div class="login-card">
       <p class="eyebrow">SETUP REQUIRED</p>
       <h2>Firebase 연결이 필요합니다</h2>
-      <p class="login-copy">먼저 <code>firebase-config.js</code>에 본인의 Firebase 웹앱 설정값을 넣어주세요.</p>
-      <p class="login-help">설정 전에는 일기 데이터가 저장되지 않습니다.</p>
+      <p class="login-copy">
+        <code>firebase-config.js</code>에 Firebase 설정값과
+        Realtime Database URL을 넣어주세요.
+      </p>
     </div>
+  </div>
+
+  <!-- 사진 슬라이드 -->
+  <div id="galleryModal" class="gallery-modal hidden" aria-hidden="true">
+    <div class="gallery-top">
+      <button id="galleryCloseBtn" class="gallery-close" type="button">닫기</button>
+      <div class="gallery-meta">
+        <strong id="galleryDate"></strong>
+        <span id="galleryAge"></span>
+      </div>
+      <span id="galleryCounter"></span>
+    </div>
+
+    <button id="galleryPrevBtn" class="gallery-nav gallery-prev" type="button" aria-label="이전 사진">‹</button>
+
+    <div class="gallery-stage">
+      <img id="galleryImage" alt="몸의 일기 사진" />
+      <p id="galleryMemo"></p>
+    </div>
+
+    <button id="galleryNextBtn" class="gallery-nav gallery-next" type="button" aria-label="다음 사진">›</button>
   </div>
 
   <script src="./firebase-config.js"></script>
