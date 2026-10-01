@@ -656,3 +656,207 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .calendar-day i{bottom:3px}
   .gallery-stage p{font-size:17px!important;line-height:1.85!important;text-align:left}
 }
+
+
+/* ===== 사진 삭제 / 달력 기록점 / 사진 일기 읽기 개선 ===== */
+
+/* 사진 삭제 버튼을 모바일에서도 확실히 보이게 */
+.photo-remove{
+  width:34px!important;
+  height:34px!important;
+  right:7px!important;
+  top:7px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:23px!important;
+  line-height:1!important;
+  font-weight:500!important;
+  background:rgba(30,27,25,.82)!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.20)!important;
+  z-index:3!important;
+}
+
+/* 기록한 날짜를 더 분명하게 */
+.calendar-day.has-record{
+  background:#faedf2!important;
+  font-weight:850!important;
+  color:#86556a!important;
+}
+
+.calendar-day.has-record i{
+  width:7px!important;
+  height:7px!important;
+  bottom:4px!important;
+  background:#c86f87!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.9)!important;
+}
+
+.calendar-day.is-selected.has-record i{
+  background:#fff!important;
+  box-shadow:none!important;
+}
+
+/* 사진 전체보기: 글이 너무 좁고 길게 내려가지 않도록 폭을 넓힘 */
+.gallery-stage{
+  width:min(980px,100%)!important;
+  padding:82px 24px 30px!important;
+}
+
+.gallery-stage img{
+  max-width:min(920px,100%)!important;
+  max-height:68vh!important;
+}
+
+.gallery-stage p{
+  width:min(820px,calc(100vw - 48px))!important;
+  max-width:820px!important;
+  margin:16px auto 0!important;
+  padding:0!important;
+  font:500 16px/1.65 "Noto Serif KR",serif!important;
+  letter-spacing:-0.035em!important;
+  word-spacing:0!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+  color:rgba(255,255,255,.90)!important;
+  text-align:left!important;
+  white-space:pre-wrap!important;
+}
+
+@media(max-width:650px){
+  .gallery-stage{
+    width:100%!important;
+    padding:76px 16px 24px!important;
+    justify-content:center!important;
+  }
+
+  .gallery-stage img{
+    width:auto!important;
+    max-width:100%!important;
+    max-height:62vh!important;
+  }
+
+  .gallery-stage p{
+    width:100%!important;
+    max-width:none!important;
+    margin:14px 0 0!important;
+    padding:0 2px!important;
+    font-size:16px!important;
+    line-height:1.62!important;
+    letter-spacing:-0.045em!important;
+  }
+
+  .calendar-day.has-record i{
+    width:7px!important;
+    height:7px!important;
+    bottom:3px!important;
+  }
+}
+
+
+/* ===== 사진 전체보기 일기 가독성 최종 수정 ===== */
+.gallery-modal{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  align-items:flex-start!important;
+}
+
+.gallery-stage{
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:100vh!important;
+  padding:88px 14px 70px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:visible!important;
+}
+
+.gallery-stage img{
+  width:100%!important;
+  max-width:760px!important;
+  height:auto!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  border-radius:18px!important;
+}
+
+.gallery-stage p{
+  width:100%!important;
+  max-width:760px!important;
+  margin:18px auto 0!important;
+  padding:0 4px 18px!important;
+  font-family:"Noto Serif KR","Apple SD Gothic Neo",serif!important;
+  font-size:17px!important;
+  font-weight:400!important;
+  line-height:1.64!important;
+  letter-spacing:-0.06em!important;
+  word-spacing:-0.03em!important;
+  text-align:left!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+  white-space:pre-wrap!important;
+  color:rgba(255,255,255,.94)!important;
+}
+
+.gallery-nav{
+  position:fixed!important;
+  top:52%!important;
+  transform:translateY(-50%)!important;
+  z-index:6!important;
+  width:48px!important;
+  height:48px!important;
+  background:rgba(35,32,30,.72)!important;
+  backdrop-filter:blur(8px)!important;
+}
+
+.gallery-prev{left:8px!important}
+.gallery-next{right:8px!important}
+
+.gallery-top{
+  position:fixed!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  z-index:8!important;
+  padding:14px 16px!important;
+  background:linear-gradient(180deg,rgba(24,21,20,.92),rgba(24,21,20,.18),transparent)!important;
+  pointer-events:none!important;
+}
+
+.gallery-top > *{
+  pointer-events:auto!important;
+}
+
+@media(max-width:650px){
+  .gallery-stage{
+    padding:76px 8px 52px!important;
+  }
+
+  .gallery-stage img{
+    width:calc(100vw - 16px)!important;
+    max-width:none!important;
+    border-radius:16px!important;
+  }
+
+  .gallery-stage p{
+    width:calc(100vw - 18px)!important;
+    max-width:none!important;
+    margin-top:14px!important;
+    padding:0 1px 14px!important;
+    font-size:16px!important;
+    line-height:1.58!important;
+    letter-spacing:-0.065em!important;
+    word-spacing:-0.035em!important;
+  }
+
+  .gallery-nav{
+    width:44px!important;
+    height:44px!important;
+    font-size:30px!important;
+  }
+
+  .gallery-prev{left:5px!important}
+  .gallery-next{right:5px!important}
+}
