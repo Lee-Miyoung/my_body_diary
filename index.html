@@ -34,7 +34,7 @@
 
       <section id="authNotice" class="notice card">
         <strong>비공개 모드</strong>
-        <span>Firebase에 로그인한 본인만 일기와 사진을 볼 수 있습니다.</span>
+        <span>Google 로그인 후 본인의 기록만 저장하고 불러옵니다.</span>
       </section>
 
       <section class="card">
@@ -131,24 +131,18 @@
   </div>
 
   <div id="loginLayer" class="login-layer">
-    <form id="loginForm" class="login-card">
+    <div class="login-card">
       <p class="eyebrow">PRIVATE JOURNAL</p>
       <h2>나만의 몸의 일기</h2>
-      <p class="login-copy">로그인한 나만 기록을 읽고 쓸 수 있습니다.</p>
+      <p class="login-copy">본인 Google 계정으로 로그인해 기록을 시작하세요.</p>
 
-      <label class="field">
-        <span>이메일</span>
-        <input id="email" type="email" autocomplete="username" required />
-      </label>
-      <label class="field">
-        <span>비밀번호</span>
-        <input id="password" type="password" autocomplete="current-password" required />
-      </label>
+      <button id="googleLoginBtn" class="primary-btn wide" type="button">
+        Google 계정으로 로그인
+      </button>
 
-      <button class="primary-btn wide" type="submit">로그인</button>
       <p id="loginMessage" class="form-message"></p>
-      <p class="login-help">회원가입 기능은 넣지 않았습니다. Firebase Console에서 만든 본인 계정만 사용할 수 있습니다.</p>
-    </form>
+      <p class="login-help">로그인 후에는 본인 계정의 기록만 저장하고 불러옵니다.</p>
+    </div>
   </div>
 
   <div id="setupLayer" class="setup-layer hidden">
@@ -156,7 +150,7 @@
       <p class="eyebrow">SETUP REQUIRED</p>
       <h2>Firebase 연결이 필요합니다</h2>
       <p class="login-copy">먼저 <code>firebase-config.js</code>에 본인의 Firebase 웹앱 설정값을 넣어주세요.</p>
-      <p class="login-help">설정 전에는 일기 데이터가 브라우저에 저장되지 않습니다.</p>
+      <p class="login-help">설정 전에는 일기 데이터가 저장되지 않습니다.</p>
     </div>
   </div>
 
