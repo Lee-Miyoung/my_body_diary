@@ -595,3 +595,40 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .preview-cta{padding:28px 18px;border-radius:24px}
   .preview-cta h3{font-size:24px}
 }
+
+/* ===== iPhone 날짜 입력칸 가로 넘침 수정 ===== */
+.archive-tools{
+  width:100%;
+  min-width:0;
+}
+.archive-tools > *{
+  min-width:0;
+  max-width:100%;
+}
+.archive-tools input[type="date"]{
+  display:block;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  -webkit-appearance:none;
+  appearance:none;
+  overflow:hidden;
+}
+@media(max-width:650px){
+  .archive-card{
+    min-width:0;
+    overflow:hidden;
+  }
+  .archive-tools{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    width:100%;
+  }
+  .archive-tools input[type="date"],
+  .archive-tools .secondary-btn{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+}
