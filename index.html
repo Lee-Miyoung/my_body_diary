@@ -134,11 +134,19 @@
       </section>
 
       <section class="card journal-card">
+        <div id="recordContext" class="record-context today-context">
+          <div>
+            <span id="recordContextLabel">오늘 기록</span>
+            <strong id="recordContextDate"></strong>
+          </div>
+          <button id="backTodayBtn" class="context-back hidden" type="button">오늘로 돌아가기</button>
+        </div>
+
         <div class="section-head">
           <div>
-            <p class="eyebrow coral">TODAY</p>
-            <h3>오늘의 몸</h3>
-            <p class="section-sub">평가하지 말고, 느껴지는 만큼만 적어보세요.</p>
+            <p id="journalEyebrow" class="eyebrow coral">TODAY</p>
+            <h3 id="journalTitle">오늘의 몸</h3>
+            <p id="journalSubtitle" class="section-sub">평가하지 말고, 느껴지는 만큼만 적어보세요.</p>
           </div>
           <span id="saveState" class="status-pill">저장 전</span>
         </div>
@@ -221,6 +229,7 @@
         <div class="button-row">
           <button id="saveBtn" class="primary-btn" type="button">오늘의 일기 저장</button>
           <button id="clearBtn" class="secondary-btn" type="button">입력 지우기</button>
+          <button id="deleteEntryBtn" class="danger-btn hidden" type="button">이 기록 삭제</button>
         </div>
       </section>
 
@@ -232,6 +241,22 @@
             <p class="section-sub">날짜와 그날의 나이를 함께 보며, 지나온 시간을 읽습니다.</p>
           </div>
           <div class="archive-stamp">MY TIME</div>
+        </div>
+
+        <div class="calendar-card">
+          <div class="calendar-head">
+            <button id="calendarPrevBtn" class="calendar-nav-btn" type="button" aria-label="이전 달">‹</button>
+            <strong id="calendarTitle">2026년 10월</strong>
+            <button id="calendarNextBtn" class="calendar-nav-btn" type="button" aria-label="다음 달">›</button>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+          <div class="calendar-legend">
+            <span><i class="legend-dot recorded"></i>기록한 날</span>
+            <span><i class="legend-ring"></i>오늘</span>
+          </div>
         </div>
 
         <div class="archive-tools">
