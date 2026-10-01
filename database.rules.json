@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "diary": {
+          "$date": {
+            ".validate": "newData.hasChildren(['date','birthDate']) && newData.child('date').val() === $date && newData.child('birthDate').val() === '1976-11-30'"
+          }
+        }
+      }
+    }
+  }
+}
