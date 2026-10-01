@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f8eee8" />
+  <meta name="theme-color" content="#f6efe9" />
   <title>몸의 일기</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <div class="bg-deco deco-1"></div>
-  <div class="bg-deco deco-2"></div>
-  <div class="bg-deco deco-3"></div>
+  <div class="page-glow glow-a"></div>
+  <div class="page-glow glow-b"></div>
+  <div class="page-glow glow-c"></div>
 
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand-wrap">
-        <div class="brand-mark">◌</div>
+      <div class="brand">
+        <div class="brand-seal">日</div>
         <div>
           <p class="eyebrow">MY BODY DIARY</p>
           <h1>몸의 일기</h1>
@@ -23,70 +23,67 @@
       </div>
 
       <div class="top-actions">
-        <button id="galleryBtn" class="icon-btn peach" type="button">사진</button>
-        <button id="pdfBtn" class="icon-btn lilac" type="button">PDF</button>
-        <button id="logoutBtn" class="icon-btn hidden mint" type="button">나가기</button>
+        <button id="galleryBtn" class="pill-btn peach" type="button">사진</button>
+        <button id="pdfBtn" class="pill-btn violet" type="button">PDF</button>
+        <button id="logoutBtn" class="pill-btn mint hidden" type="button">나가기</button>
       </div>
     </header>
 
     <main>
-      <section class="hero card">
-        <div class="hero-orb orb-pink"></div>
-        <div class="hero-orb orb-yellow"></div>
-        <div class="hero-orb orb-mint"></div>
-
-        <div class="hero-content">
-          <p id="todayText" class="today"></p>
-
-          <div class="age-line">
-            <span class="age-prefix">오늘의 나는</span>
-            <strong id="ageText">49년 10개월 1일째</strong>
+      <!-- 감성형 히어로 -->
+      <section class="hero-card">
+        <div class="hero-paper">
+          <div class="hero-date-ribbon">
+            <span id="heroUserName">나의 몸의 시간</span>
+            <span id="todayText"></span>
           </div>
 
-          <p class="hero-copy">오늘의 몸은 어떤 이야기를 하고 있나요?</p>
+          <div class="hero-center">
+            <p class="hero-kicker">오늘의 나는</p>
+            <h2 id="ageText">49년 10개월 1일째</h2>
+            <p class="hero-question">오늘의 몸에게 조용히 안부를 묻습니다.</p>
 
-          <div class="hero-tags">
-            <span class="mini-tag rose">BODY</span>
-            <span class="mini-tag mint">MOOD</span>
-            <span class="mini-tag butter">MEMORY</span>
+            <div class="hero-quote">
+              <span class="quote-mark">“</span>
+              <p>매일 쓰지 않아도 괜찮아요.<br>기억하고 싶은 날만, 몸의 시간을 남겨두세요.</p>
+            </div>
           </div>
 
-          <div class="hero-rule"></div>
+          <div class="hero-bottom">
+            <div class="birth-chip">
+              <span>태어난 날</span>
+              <strong id="birthDateText">1976. 11. 30</strong>
+            </div>
+            <div class="color-dots" aria-hidden="true">
+              <i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><i class="c5"></i>
+            </div>
+          </div>
 
-          <p class="small">
-            1976. 11. 30부터 오늘까지.<br>
-            숫자로 세고, 문장으로 기억하는 나의 몸의 시간.
-          </p>
+          <div class="petal petal-a"></div>
+          <div class="petal petal-b"></div>
+          <div class="petal petal-c"></div>
         </div>
       </section>
 
-      <section class="notice card">
-        <div class="notice-icon">🔐</div>
+      <section class="privacy-note">
+        <div class="privacy-icon">🔐</div>
         <div>
-          <strong>나만 보는 비공개 기록</strong>
-          <span>Google 로그인한 본인 계정의 기록만 저장하고 불러옵니다.</span>
+          <strong>나만 보는 개인 기록</strong>
+          <span>로그인한 본인의 일기와 사진만 저장·열람됩니다.</span>
         </div>
       </section>
 
       <section class="card journal-card">
         <div class="section-head">
           <div>
-            <p class="eyebrow coral-text">TODAY</p>
+            <p class="eyebrow coral">TODAY</p>
             <h2>오늘의 몸</h2>
-            <p class="section-sub">몸의 신호를 가볍게 적어두세요. 매일 쓰지 않아도 괜찮습니다.</p>
+            <p class="section-sub">하루를 평가하지 말고, 그냥 관찰해서 적어보세요.</p>
           </div>
           <span id="saveState" class="status-pill">저장 전</span>
         </div>
 
-        <div class="mood-strip">
-          <span class="mood-dot rose"></span>
-          <span class="mood-dot peach"></span>
-          <span class="mood-dot butter"></span>
-          <span class="mood-dot mint"></span>
-          <span class="mood-dot lilac"></span>
-        </div>
-
-        <label class="field accent-field rose-field">
+        <label class="field color-field rose-field">
           <span>오늘의 컨디션</span>
           <div class="range-wrap">
             <input id="condition" type="range" min="1" max="5" value="3" />
@@ -95,51 +92,49 @@
         </label>
 
         <div class="grid-2">
-          <label class="field accent-field lilac-field">
+          <label class="field color-field violet-field">
             <span>수면</span>
             <input id="sleep" type="text" placeholder="예: 6시간 30분, 중간에 1회 깸" />
           </label>
-
-          <label class="field accent-field peach-field">
+          <label class="field color-field peach-field">
             <span>몸의 불편함</span>
             <input id="pain" type="text" placeholder="예: 오른쪽 어깨 뻐근함" />
           </label>
         </div>
 
         <div class="grid-2">
-          <label class="field accent-field mint-field">
+          <label class="field color-field mint-field">
             <span>소화 · 배변</span>
             <input id="digestion" type="text" placeholder="예: 양호 / 더부룩함" />
           </label>
-
-          <label class="field accent-field butter-field">
+          <label class="field color-field yellow-field">
             <span>움직임 · 운동</span>
             <input id="movement" type="text" placeholder="예: 5km 러닝, 스트레칭" />
           </label>
         </div>
 
-        <label class="field accent-field sage-field">
+        <label class="field color-field sage-field">
           <span>먹은 것 · 몸의 반응</span>
           <textarea id="food" rows="3" placeholder="무엇을 먹었고 몸은 어떻게 반응했나요?"></textarea>
         </label>
 
-        <label class="field accent-field blue-field">
+        <label class="field color-field blue-field">
           <span>오늘의 기분</span>
           <input id="mood" type="text" placeholder="예: 차분함, 피곤하지만 기분은 좋음" />
         </label>
 
-        <label class="field accent-field rose-field">
+        <label class="field color-field rose-field">
           <span>오늘의 몸 이야기</span>
           <textarea id="bodyNote" rows="7" placeholder="몸이 보내는 신호, 눈에 띈 변화, 기억하고 싶은 것을 자유롭게 적어보세요."></textarea>
         </label>
 
-        <div class="field photo-section">
+        <div class="photo-panel">
           <div class="field-title-row">
             <div>
-              <span>오늘의 사진</span>
-              <small>사진도 몸의 기억입니다.</small>
+              <strong>오늘의 사진</strong>
+              <span>사진도 몸의 기억입니다.</span>
             </div>
-            <small id="photoCountText" class="count-badge">0장</small>
+            <b id="photoCountText">0장</b>
           </div>
 
           <label class="photo-picker" for="photoInput">
@@ -159,18 +154,18 @@
       </section>
 
       <section class="card archive-card">
-        <div class="section-head archive-head">
+        <div class="section-head">
           <div>
-            <p class="eyebrow violet-text">ARCHIVE</p>
+            <p class="eyebrow purple">ARCHIVE</p>
             <h2>지난 몸의 일기</h2>
-            <p class="section-sub">날짜와 그날의 나이를 함께 보며 시간을 이어봅니다.</p>
+            <p class="section-sub">날짜 옆에서 그날의 나이를 함께 볼 수 있습니다.</p>
           </div>
           <div class="archive-stamp">MY TIME</div>
         </div>
 
         <div class="archive-tools">
           <input id="archiveDate" type="date" />
-          <button id="loadDateBtn" class="secondary-btn archive-view-btn" type="button">이 날짜 보기</button>
+          <button id="loadDateBtn" class="secondary-btn" type="button">이 날짜 보기</button>
         </div>
 
         <div id="recentEntries" class="recent-list">
@@ -179,22 +174,19 @@
       </section>
 
       <footer>
-        <div class="footer-dots"><span></span><span></span><span></span></div>
+        <div class="footer-colors"><span></span><span></span><span></span><span></span><span></span></div>
         <p>나의 몸을 판단하지 않고, 오래 관찰하기 위한 기록.</p>
       </footer>
     </main>
   </div>
 
   <!-- 로그인 -->
-  <div id="loginLayer" class="login-layer">
+  <div id="loginLayer" class="overlay-layer">
     <div class="login-card">
-      <div class="login-blob blob-one"></div>
-      <div class="login-blob blob-two"></div>
-
-      <div class="login-symbol">◌</div>
+      <div class="login-symbol">日</div>
       <p class="eyebrow">PRIVATE JOURNAL</p>
-      <h2>나만의 몸의 일기</h2>
-      <p class="login-copy">본인 Google 계정으로 로그인해 나의 몸과 시간을 기록하세요.</p>
+      <h2>몸의 일기</h2>
+      <p class="login-copy">초대된 6명만 사용할 수 있는 개인 기록 공간입니다.</p>
 
       <button id="googleLoginBtn" class="google-btn" type="button">
         <span class="google-mark">G</span>
@@ -205,15 +197,37 @@
     </div>
   </div>
 
+  <!-- 첫 로그인 프로필 -->
+  <div id="profileLayer" class="overlay-layer hidden">
+    <div class="profile-card">
+      <p class="eyebrow purple">FIRST RECORD</p>
+      <h2>나의 시작일을 알려주세요</h2>
+      <p class="profile-copy">
+        생년월일은 나이를 계산할 때만 사용합니다.<br>
+        한 번 저장하면 다음부터 자동으로 불러옵니다.
+      </p>
+
+      <label class="profile-field">
+        <span>이름 또는 별칭</span>
+        <input id="profileName" type="text" maxlength="30" placeholder="예: 미영" />
+      </label>
+
+      <label class="profile-field">
+        <span>생년월일</span>
+        <input id="profileBirthDate" type="date" />
+      </label>
+
+      <button id="profileSaveBtn" class="primary-btn wide" type="button">내 몸의 일기 시작하기</button>
+      <p id="profileMessage" class="form-message"></p>
+    </div>
+  </div>
+
   <!-- Firebase 설정 전 -->
-  <div id="setupLayer" class="login-layer hidden">
+  <div id="setupLayer" class="overlay-layer hidden">
     <div class="login-card">
       <p class="eyebrow">SETUP REQUIRED</p>
       <h2>Firebase 연결이 필요합니다</h2>
-      <p class="login-copy">
-        <code>firebase-config.js</code>에 Firebase 설정값과
-        Realtime Database URL을 넣어주세요.
-      </p>
+      <p class="login-copy"><code>firebase-config.js</code> 설정을 확인해주세요.</p>
     </div>
   </div>
 
@@ -229,12 +243,10 @@
     </div>
 
     <button id="galleryPrevBtn" class="gallery-nav gallery-prev" type="button" aria-label="이전 사진">‹</button>
-
     <div class="gallery-stage">
       <img id="galleryImage" alt="몸의 일기 사진" />
       <p id="galleryMemo"></p>
     </div>
-
     <button id="galleryNextBtn" class="gallery-nav gallery-next" type="button" aria-label="다음 사진">›</button>
   </div>
 

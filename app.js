@@ -7,13 +7,16 @@ import {
   getDatabase, ref, set, get, query, orderByKey, limitToLast
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
-const BIRTH = { y: 1976, m: 11, d: 30 };
 const TZ = "Asia/Seoul";
 const MAX_PHOTOS_PER_DAY = 3;
 const IMAGE_MAX_SIDE = 520;
 const IMAGE_QUALITY = 0.52;
 
 const config = window.BODY_DIARY_FIREBASE_CONFIG || {};
+const ALLOWED_EMAILS = (window.BODY_DIARY_ALLOWED_EMAILS || [])
+  .map(v => String(v || "").trim().toLowerCase())
+  .filter(Boolean);
+
 const isConfigured =
   config.apiKey &&
   config.databaseURL &&
@@ -23,31 +26,30 @@ const isConfigured =
 const $ = id => document.getElementById(id);
 
 const els = {
-  todayText:$("todayText"), ageText:$("ageText"),
+  heroUserName:$("heroUserName"), todayText:$("todayText"), ageText:$("ageText"), birthDateText:$("birthDateText"),
   condition:$("condition"), conditionOutput:$("conditionOutput"),
   sleep:$("sleep"), pain:$("pain"), digestion:$("digestion"),
-  movement:$("movement"), food:$("food"), mood:$("mood"),
-  bodyNote:$("bodyNote"), photoInput:$("photoInput"),
-  photoPreview:$("photoPreview"), photoCountText:$("photoCountText"),
-  saveBtn:$("saveBtn"), clearBtn:$("clearBtn"),
-  pdfBtn:$("pdfBtn"), galleryBtn:$("galleryBtn"),
-  loginLayer:$("loginLayer"), setupLayer:$("setupLayer"),
+  movement:$("movement"), food:$("food"), mood:$("mood"), bodyNote:$("bodyNote"),
+  photoInput:$("photoInput"), photoPreview:$("photoPreview"), photoCountText:$("photoCountText"),
+  saveBtn:$("saveBtn"), clearBtn:$("clearBtn"), pdfBtn:$("pdfBtn"), galleryBtn:$("galleryBtn"),
+  loginLayer:$("loginLayer"), setupLayer:$("setupLayer"), profileLayer:$("profileLayer"),
   googleLoginBtn:$("googleLoginBtn"), loginMessage:$("loginMessage"),
   logoutBtn:$("logoutBtn"), saveState:$("saveState"),
-  recentEntries:$("recentEntries"), archiveDate:$("archiveDate"),
-  loadDateBtn:$("loadDateBtn"),
+  recentEntries:$("recentEntries"), archiveDate:$("archiveDate"), loadDateBtn:$("loadDateBtn"),
+  profileName:$("profileName"), profileBirthDate:$("profileBirthDate"), profileSaveBtn:$("profileSaveBtn"), profileMessage:$("profileMessage"),
   galleryModal:$("galleryModal"), galleryCloseBtn:$("galleryCloseBtn"),
   galleryPrevBtn:$("galleryPrevBtn"), galleryNextBtn:$("galleryNextBtn"),
   galleryImage:$("galleryImage"), galleryDate:$("galleryDate"),
-  galleryAge:$("galleryAge"), galleryCounter:$("galleryCounter"),
-  galleryMemo:$("galleryMemo")
+  galleryAge:$("galleryAge"), galleryCounter:$("galleryCounter"), galleryMemo:$("galleryMemo")
 };
 
 let auth, db, currentUser = null;
+let userProfile = null;
 let selectedDateKey = "";
 let currentPhotos = [];
 let galleryItems = [];
 let galleryIndex = 0;
+let currentBirth = null;
 
 function seoulYMD(date = new Date()){
   const parts = new Intl.DateTimeFormat("en-CA",{
@@ -56,14 +58,10 @@ function seoulYMD(date = new Date()){
   const map = Object.fromEntries(parts.map(p=>[p.type,p.value]));
   return {y:+map.year,m:+map.month,d:+map.day};
 }
-function ymdKey(v){
-  return `${v.y}-${String(v.m).padStart(2,"0")}-${String(v.d).padStart(2,"0")}`;
-}
+function ymdKey(v){ return `${v.y}-${String(v.m).padStart(2,"0")}-${String(v.d).padStart(2,"0")}`; }
 function toUTCDate(v){ return new Date(Date.UTC(v.y,v.m-1,v.d)); }
 function clampDay(y,m,d){ return Math.min(d,new Date(Date.UTC(y,m,0)).getUTCDate()); }
-function addYears(v,years){
-  const y=v.y+years; return {y,m:v.m,d:clampDay(y,v.m,v.d)};
-}
+function addYears(v,years){ const y=v.y+years; return {y,m:v.m,d:clampDay(y,v.m,v.d)}; }
 function addMonths(v,months){
   const base=v.m-1+months;
   const y=v.y+Math.floor(base/12);
@@ -72,6 +70,17 @@ function addMonths(v,months){
 }
 function compareYMD(a,b){ return toUTCDate(a)-toUTCDate(b); }
 function diffDays(a,b){ return Math.floor((toUTCDate(b)-toUTCDate(a))/86400000); }
+function parseBirthDate(s){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s||""))) return null;
+  const [y,m,d]=s.split("-").map(Number);
+  if(!y||!m||!d) return null;
+  return {y,m,d};
+}
+function birthText(s){
+  const p=parseBirthDate(s);
+  if(!p) return "";
+  return `${p.y}. ${String(p.m).padStart(2,"0")}. ${String(p.d).padStart(2,"0")}`;
+}
 function calendarAge(birth,today){
   let years=today.y-birth.y;
   let yearAnchor=addYears(birth,years);
@@ -91,24 +100,27 @@ function koreanDate(v){
   }).format(dt);
 }
 function ageTextForKey(dateKey){
+  if(!currentBirth) return "";
   const [y,m,d]=dateKey.split("-").map(Number);
-  const age=calendarAge(BIRTH,{y,m,d});
+  const age=calendarAge(currentBirth,{y,m,d});
   return `${age.years}년 ${age.months}개월 ${age.days}일째`;
 }
 function updateHeader(target=seoulYMD()){
-  const age=calendarAge(BIRTH,target);
+  if(!currentBirth) return;
+  const age=calendarAge(currentBirth,target);
   els.todayText.textContent=koreanDate(target);
   els.ageText.textContent=`${age.years}년 ${age.months}개월 ${age.days}일째`;
+  els.birthDateText.textContent=birthText(userProfile.birthDate);
+  els.heroUserName.textContent=`${userProfile.name || "나"}의 몸의 시간`;
   selectedDateKey=ymdKey(target);
   els.archiveDate.value=selectedDateKey;
 }
-
 function conditionLabel(v){
   return ({1:"매우 힘듦",2:"조금 힘듦",3:"보통",4:"좋음",5:"아주 좋음"})[v]||"";
 }
 function setSaveState(text,ok=false){
   els.saveState.textContent=text;
-  els.saveState.style.color=ok?"#4f5c4b":"";
+  els.saveState.style.color=ok?"#567563":"";
 }
 function clean(v,max=5000){ return String(v||"").trim().slice(0,max); }
 
@@ -157,7 +169,9 @@ function resizeToBase64(file){
         }
         const canvas=document.createElement("canvas");
         canvas.width=w; canvas.height=h;
-        const ctx=canvas.getContext("2d");
+        const ctx=canvas.getContext("2d",{alpha:false});
+        ctx.fillStyle="#fff";
+        ctx.fillRect(0,0,w,h);
         ctx.drawImage(img,0,0,w,h);
         resolve(canvas.toDataURL("image/jpeg",IMAGE_QUALITY));
       };
@@ -174,9 +188,8 @@ function clearForm(keepHeader=true){
   currentPhotos=[];
   renderPhotos();
   setSaveState("저장 전");
-  if(!keepHeader) updateHeader();
+  if(!keepHeader && userProfile) updateHeader();
 }
-
 function payload(){
   return {
     date:selectedDateKey,
@@ -189,17 +202,14 @@ function payload(){
     mood:clean(els.mood.value,500),
     bodyNote:clean(els.bodyNote.value,8000),
     photos:currentPhotos,
-    birthDate:"1976-11-30",
+    birthDate:userProfile.birthDate,
     updatedAt:Date.now()
   };
 }
-
-function entryRef(uid,dateKey){
-  return ref(db,`users/${uid}/diary/${dateKey}`);
-}
+function entryRef(uid,dateKey){ return ref(db,`users/${uid}/diary/${dateKey}`); }
 
 async function saveEntry(){
-  if(!currentUser) return;
+  if(!currentUser || !userProfile) return;
   els.saveBtn.disabled=true;
   setSaveState("저장 중…");
   try{
@@ -220,7 +230,7 @@ async function saveEntry(){
 }
 
 async function loadEntry(dateKey){
-  if(!currentUser) return;
+  if(!currentUser || !userProfile) return;
   const snap=await get(entryRef(currentUser.uid,dateKey));
   const [y,m,d]=dateKey.split("-").map(Number);
   updateHeader({y,m,d});
@@ -235,7 +245,7 @@ async function loadEntry(dateKey){
   els.condition.value=String(v.condition||3);
   els.conditionOutput.value=`${els.condition.value} · ${conditionLabel(els.condition.value)}`;
   ["sleep","pain","digestion","movement","food","mood","bodyNote"].forEach(k=>els[k].value=v[k]||"");
-  currentPhotos=Array.isArray(v.photos) ? v.photos : [];
+  currentPhotos=Array.isArray(v.photos)?v.photos:[];
   renderPhotos();
   setSaveState("불러옴",true);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -245,48 +255,25 @@ function formatArchiveDate(dateKey){
   const [y,m,d]=dateKey.split("-");
   return `${y}. ${m}. ${d}`;
 }
-
 function conditionTextFromValue(v){
-  return ({
-    1:"매우 힘듦",
-    2:"조금 힘듦",
-    3:"보통",
-    4:"좋음",
-    5:"아주 좋음"
-  })[Number(v)] || "보통";
+  return ({1:"매우 힘듦",2:"조금 힘듦",3:"보통",4:"좋음",5:"아주 좋음"})[Number(v)]||"보통";
 }
-
 function buildEntryPreview(value){
-  return (
-    value.bodyNote ||
-    value.food ||
-    value.pain ||
-    value.mood ||
-    value.movement ||
-    "기록이 저장되어 있습니다."
-  );
+  return value.bodyNote||value.food||value.pain||value.mood||value.movement||"기록이 저장되어 있습니다.";
 }
-
 async function loadRecentEntries(){
-  if(!currentUser) return;
+  if(!currentUser || !userProfile) return;
   els.recentEntries.innerHTML='<p class="muted">불러오는 중…</p>';
-
   try{
-    const q=query(
-      ref(db,`users/${currentUser.uid}/diary`),
-      orderByKey(),
-      limitToLast(12)
-    );
-
+    const q=query(ref(db,`users/${currentUser.uid}/diary`),orderByKey(),limitToLast(12));
     const snap=await get(q);
     const rows=[];
     snap.forEach(child=>rows.push({key:child.key,value:child.val()}));
     rows.reverse();
-
     els.recentEntries.innerHTML="";
 
     if(!rows.length){
-      els.recentEntries.innerHTML='<div class="empty-archive"><div class="empty-icon">◌</div><strong>아직 저장된 몸의 일기가 없습니다.</strong><span>첫 기록을 남기면 이곳에 차곡차곡 쌓입니다.</span></div>';
+      els.recentEntries.innerHTML='<div class="empty-archive"><strong>아직 저장된 몸의 일기가 없습니다.</strong><span>첫 기록을 남기면 이곳에 차곡차곡 쌓입니다.</span></div>';
       return;
     }
 
@@ -295,8 +282,7 @@ async function loadRecentEntries(){
       row.className="entry-item";
 
       const accent=document.createElement("div");
-      const moodIndex=(Number(value.condition||3)-1)%5;
-      accent.className=`entry-accent accent-${moodIndex+1}`;
+      accent.className=`entry-accent accent-${Math.min(5,Math.max(1,Number(value.condition||3)))}`;
 
       const btn=document.createElement("button");
       btn.type="button";
@@ -342,9 +328,7 @@ async function loadRecentEntries(){
 
       const meta=document.createElement("span");
       meta.className="entry-meta";
-      meta.textContent=value.mood
-        ? `오늘의 기분 · ${String(value.mood).slice(0,28)}`
-        : "기록 자세히 보기";
+      meta.textContent=value.mood?`오늘의 기분 · ${String(value.mood).slice(0,28)}`:"기록 자세히 보기";
 
       btn.append(top,preview,meta);
 
@@ -355,7 +339,6 @@ async function loadRecentEntries(){
       row.append(accent,btn,arrow);
       els.recentEntries.append(row);
     });
-
   }catch(err){
     console.error(err);
     els.recentEntries.innerHTML='<p class="muted">기록을 불러오지 못했습니다.</p>';
@@ -370,18 +353,12 @@ async function buildGalleryItems(){
     const v=child.val()||{};
     const photos=Array.isArray(v.photos)?v.photos:[];
     photos.forEach((src,photoIndex)=>{
-      items.push({
-        date:child.key,
-        src,
-        memo:v.bodyNote||v.pain||v.mood||"",
-        photoIndex
-      });
+      items.push({date:child.key,src,memo:v.bodyNote||v.pain||v.mood||"",photoIndex});
     });
   });
   items.sort((a,b)=>a.date.localeCompare(b.date)||a.photoIndex-b.photoIndex);
   return items;
 }
-
 function showGalleryItem(){
   const item=galleryItems[galleryIndex];
   if(!item) return;
@@ -391,38 +368,91 @@ function showGalleryItem(){
   els.galleryCounter.textContent=`${galleryIndex+1} / ${galleryItems.length}`;
   els.galleryMemo.textContent=item.memo||"";
 }
-
 async function openGalleryAt(matchFn){
   galleryItems=await buildGalleryItems();
-  if(!galleryItems.length){
-    alert("아직 저장된 사진이 없습니다.");
-    return;
-  }
+  if(!galleryItems.length){ alert("아직 저장된 사진이 없습니다."); return; }
   const idx=galleryItems.findIndex(matchFn);
   galleryIndex=idx>=0?idx:galleryItems.length-1;
   showGalleryItem();
   els.galleryModal.classList.remove("hidden");
-  els.galleryModal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
 }
-function openCurrentDayGallery(photoIndex){
-  openGalleryAt(x=>x.date===selectedDateKey && x.photoIndex===photoIndex);
-}
-function closeGallery(){
-  els.galleryModal.classList.add("hidden");
-  els.galleryModal.setAttribute("aria-hidden","true");
-  document.body.style.overflow="";
-}
+function openCurrentDayGallery(photoIndex){ openGalleryAt(x=>x.date===selectedDateKey&&x.photoIndex===photoIndex); }
+function closeGallery(){ els.galleryModal.classList.add("hidden"); document.body.style.overflow=""; }
 function moveGallery(delta){
   if(!galleryItems.length) return;
   galleryIndex=(galleryIndex+delta+galleryItems.length)%galleryItems.length;
   showGalleryItem();
 }
 
+async function inferLegacyProfile(uid){
+  try{
+    const snap=await get(query(ref(db,`users/${uid}/diary`),orderByKey(),limitToLast(1)));
+    let last=null;
+    snap.forEach(child=>{ last=child.val(); });
+    if(last && parseBirthDate(last.birthDate)){
+      return {
+        name: currentUser.displayName || "나",
+        birthDate:last.birthDate,
+        email:String(currentUser.email||"").toLowerCase(),
+        createdAt:Date.now(),
+        migratedFromDiary:true
+      };
+    }
+  }catch(e){ console.warn("legacy profile infer failed",e); }
+  return null;
+}
+async function loadProfile(uid){
+  const snap=await get(ref(db,`users/${uid}/profile`));
+  if(snap.exists()) return snap.val();
+
+  const legacy=await inferLegacyProfile(uid);
+  if(legacy){
+    await set(ref(db,`users/${uid}/profile`),legacy);
+    return legacy;
+  }
+  return null;
+}
+function isAllowedEmail(email){
+  if(!ALLOWED_EMAILS.length) return true;
+  return ALLOWED_EMAILS.includes(String(email||"").trim().toLowerCase());
+}
+async function saveProfile(){
+  if(!currentUser) return;
+  const name=clean(els.profileName.value,30);
+  const birthDate=els.profileBirthDate.value;
+  if(!name){ els.profileMessage.textContent="이름 또는 별칭을 입력해주세요."; return; }
+  if(!parseBirthDate(birthDate)){ els.profileMessage.textContent="생년월일을 정확히 선택해주세요."; return; }
+
+  const profile={
+    name,
+    birthDate,
+    email:String(currentUser.email||"").toLowerCase(),
+    createdAt:Date.now()
+  };
+
+  try{
+    await set(ref(db,`users/${currentUser.uid}/profile`),profile);
+    userProfile=profile;
+    currentBirth=parseBirthDate(profile.birthDate);
+    els.profileLayer.classList.add("hidden");
+    await startDiary();
+  }catch(err){
+    console.error(err);
+    els.profileMessage.textContent="프로필 저장에 실패했습니다.";
+  }
+}
+async function startDiary(){
+  if(!userProfile) return;
+  currentBirth=parseBirthDate(userProfile.birthDate);
+  updateHeader();
+  const today=ymdKey(seoulYMD());
+  await loadEntry(today);
+  await loadRecentEntries();
+}
+
 let touchStartX=null;
-els.galleryModal.addEventListener("touchstart",e=>{
-  touchStartX=e.changedTouches[0].clientX;
-},{passive:true});
+els.galleryModal.addEventListener("touchstart",e=>{ touchStartX=e.changedTouches[0].clientX; },{passive:true});
 els.galleryModal.addEventListener("touchend",e=>{
   if(touchStartX===null) return;
   const dx=e.changedTouches[0].clientX-touchStartX;
@@ -437,7 +467,7 @@ function setupEvents(){
   });
 
   document.querySelectorAll("input,textarea").forEach(el=>{
-    if(!["archiveDate","photoInput","condition"].includes(el.id)){
+    if(!["archiveDate","photoInput","condition","profileName","profileBirthDate"].includes(el.id)){
       el.addEventListener("input",()=>setSaveState("변경 있음"));
     }
   });
@@ -446,20 +476,14 @@ function setupEvents(){
     const files=[...els.photoInput.files];
     els.photoInput.value="";
     const remaining=MAX_PHOTOS_PER_DAY-currentPhotos.length;
-    if(remaining<=0){
-      alert(`하루 사진은 최대 ${MAX_PHOTOS_PER_DAY}장까지 저장할 수 있습니다.`);
-      return;
-    }
+    if(remaining<=0){ alert(`하루 사진은 최대 ${MAX_PHOTOS_PER_DAY}장까지 저장할 수 있습니다.`); return; }
+
     const selected=files.slice(0,remaining);
-    if(files.length>remaining){
-      alert(`하루 최대 ${MAX_PHOTOS_PER_DAY}장까지만 저장됩니다.`);
-    }
+    if(files.length>remaining) alert(`하루 최대 ${MAX_PHOTOS_PER_DAY}장까지만 저장됩니다.`);
+
     for(const file of selected){
-      try{
-        currentPhotos.push(await resizeToBase64(file));
-      }catch(err){
-        alert(err.message);
-      }
+      try{ currentPhotos.push(await resizeToBase64(file)); }
+      catch(err){ alert(err.message); }
     }
     renderPhotos();
     setSaveState("변경 있음");
@@ -477,6 +501,7 @@ function setupEvents(){
     const btn=e.target.closest("button[data-date]");
     if(btn) loadEntry(btn.dataset.date);
   });
+  els.profileSaveBtn.addEventListener("click",saveProfile);
 
   els.galleryCloseBtn.addEventListener("click",closeGallery);
   els.galleryPrevBtn.addEventListener("click",()=>moveGallery(-1));
@@ -488,8 +513,6 @@ function setupEvents(){
     if(e.key==="ArrowRight") moveGallery(1);
   });
 }
-
-updateHeader();
 setupEvents();
 
 if(!isConfigured){
@@ -516,10 +539,7 @@ if(!isConfigured){
     }catch(err){
       console.error(err);
       if(["auth/popup-blocked","auth/popup-closed-by-user","auth/cancelled-popup-request"].includes(err.code)){
-        try{
-          await signInWithRedirect(auth,provider);
-          return;
-        }catch(e){ console.error(e); }
+        try{ await signInWithRedirect(auth,provider); return; }catch(e){ console.error(e); }
       }
       els.loginMessage.textContent="Google 로그인에 실패했습니다. 다시 시도해주세요.";
     }finally{
@@ -529,16 +549,41 @@ if(!isConfigured){
 
   onAuthStateChanged(auth,async user=>{
     currentUser=user;
-    if(user){
-      els.loginLayer.classList.add("hidden");
-      els.logoutBtn.classList.remove("hidden");
-      const today=ymdKey(seoulYMD());
-      await loadEntry(today);
-      await loadRecentEntries();
-    }else{
+
+    if(!user){
+      userProfile=null; currentBirth=null;
       els.loginLayer.classList.remove("hidden");
+      els.profileLayer.classList.add("hidden");
       els.logoutBtn.classList.add("hidden");
-      clearForm(false);
+      return;
     }
+
+    // 기존 데이터가 있는 사용자는 현재 계정으로 인정하여 마이그레이션.
+    let existingDiary=false;
+    try{
+      const d=await get(query(ref(db,`users/${user.uid}/diary`),orderByKey(),limitToLast(1)));
+      existingDiary=d.exists();
+    }catch(_){}
+
+    if(!existingDiary && !isAllowedEmail(user.email)){
+      els.loginMessage.textContent="초대된 계정이 아닙니다.";
+      await signOut(auth);
+      return;
+    }
+
+    els.loginLayer.classList.add("hidden");
+    els.logoutBtn.classList.remove("hidden");
+
+    userProfile=await loadProfile(user.uid);
+
+    if(!userProfile){
+      els.profileName.value=user.displayName||"";
+      els.profileBirthDate.value="";
+      els.profileMessage.textContent="";
+      els.profileLayer.classList.remove("hidden");
+      return;
+    }
+
+    await startDiary();
   });
 }
