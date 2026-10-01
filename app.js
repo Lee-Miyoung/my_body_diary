@@ -494,18 +494,36 @@ async function deleteCurrentEntry(){
 
 async function loadRecentEntries(){
   if(!currentUser || !userProfile) return;
+
   els.recentEntries.innerHTML='<p class="muted">불러오는 중…</p>';
 
   try{
-    const q=query(ref(db,`users/${currentUser.uid}/diary`),orderByKey(),limitToLast(12));
-    const snap=await get(q);
+    /*
+     * 달력과 지난 일기 목록이 서로 다르게 보이지 않도록
+     * diary 전체를 한 번 읽어서 같은 원본 데이터로 목록을 만듭니다.
+     * 날짜 키(YYYY-MM-DD)를 직접 최신순 정렬합니다.
+     */
+    const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
+
     const rows=[];
-    snap.forEach(child=>rows.push({key:child.key,value:child.val()}));
-    rows.reverse();
+
+    snap.forEach(child=>{
+      const key=String(child.key||"");
+      const value=child.val()||{};
+
+      // 날짜 형식의 일기만 목록에 표시
+      if(/^\d{4}-\d{2}-\d{2}$/.test(key)){
+        rows.push({key,value});
+      }
+    });
+
+    rows.sort((a,b)=>b.key.localeCompare(a.key));
+
     els.recentEntries.innerHTML="";
 
     if(!rows.length){
-      els.recentEntries.innerHTML='<div class="empty-archive"><strong>아직 저장된 몸의 일기가 없습니다.</strong><span>첫 기록을 남기면 이곳에 차곡차곡 쌓입니다.</span></div>';
+      els.recentEntries.innerHTML=
+        '<div class="empty-archive"><strong>아직 저장된 몸의 일기가 없습니다.</strong><span>첫 기록을 남기면 이곳에 차곡차곡 쌓입니다.</span></div>';
       return;
     }
 
@@ -545,6 +563,7 @@ async function loadRecentEntries(){
       chips.appendChild(conditionChip);
 
       const photoCount=Array.isArray(value.photos)?value.photos.length:0;
+
       if(photoCount>0){
         const photoChip=document.createElement("span");
         photoChip.className="entry-chip photo-chip";
@@ -560,7 +579,9 @@ async function loadRecentEntries(){
 
       const meta=document.createElement("span");
       meta.className="entry-meta";
-      meta.textContent=value.mood?`오늘의 기분 · ${String(value.mood).slice(0,28)}`:"기록 자세히 보기";
+      meta.textContent=value.mood
+        ? `오늘의 기분 · ${String(value.mood).slice(0,28)}`
+        : "기록 자세히 보기";
 
       btn.append(top,preview,meta);
 
@@ -571,12 +592,13 @@ async function loadRecentEntries(){
       row.append(accent,btn,arrow);
       els.recentEntries.append(row);
     });
+
   }catch(err){
-    console.error(err);
-    els.recentEntries.innerHTML='<p class="muted">기록을 불러오지 못했습니다.</p>';
+    console.error("recent entries load failed",err);
+    els.recentEntries.innerHTML=
+      '<p class="muted">지난 기록을 불러오지 못했습니다.</p>';
   }
 }
-
 async function buildGalleryItems(){
   if(!currentUser) return [];
   const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
@@ -1013,8 +1035,8 @@ function buildBookPrintHtml(rows){
   }
 
   .book-header{
-    padding:0 0 7mm;
-    margin-bottom:5mm;
+    padding:0 0 5mm;
+    margin-bottom:3mm;
     border-bottom:1px solid #e7ddd6;
   }
   .kicker{
@@ -1024,19 +1046,19 @@ function buildBookPrintHtml(rows){
   .book-header h1{
     margin:0;
     font-family:Georgia,"Apple SD Gothic Neo",serif;
-    font-size:25pt;
+    font-size:20pt;
     line-height:1.15;
     letter-spacing:-.04em
   }
   .book-header .subtitle{
     margin:2mm 0 0;
-    font-size:10pt;
+    font-size:7.5pt;
     color:#6f655f
   }
   .book-meta{
     display:flex;
     flex-wrap:wrap;
-    gap:2mm;
+    gap:1.4mm;
     margin-top:4mm
   }
   .book-meta span{
@@ -1048,7 +1070,7 @@ function buildBookPrintHtml(rows){
   }
 
   .book-entry{
-    padding:6mm 0 7mm;
+    padding:4mm 0 5mm;
     border-bottom:1px solid #e9dfd8;
     break-inside:auto;
     page-break-inside:auto;
@@ -1064,14 +1086,14 @@ function buildBookPrintHtml(rows){
   }
   .book-entry-date{
     font-family:Georgia,"Apple SD Gothic Neo",serif;
-    font-size:21pt;
+    font-size:16.5pt;
     line-height:1.2;
     font-weight:600;
     letter-spacing:-.04em
   }
   .book-entry-age{
     margin-top:1mm;
-    font-size:8.5pt;
+    font-size:7.5pt;
     color:#8d8179
   }
 
@@ -1079,7 +1101,7 @@ function buildBookPrintHtml(rows){
     display:flex;
     flex-wrap:wrap;
     gap:1.5mm;
-    margin-top:3mm
+    margin-top:2mm
   }
   .book-entry-chips span{
     padding:1.5mm 2.2mm;
@@ -1093,8 +1115,8 @@ function buildBookPrintHtml(rows){
   .book-photo-grid{
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:2mm;
-    margin:4mm 0
+    gap:1.4mm;
+    margin:3mm 0
   }
   .book-photo{
     margin:0;
@@ -1106,7 +1128,7 @@ function buildBookPrintHtml(rows){
   .book-photo img{
     display:block;
     width:100%;
-    height:43mm;
+    height:32mm;
     object-fit:cover
   }
   .book-photo-grid .book-photo:only-child{
@@ -1114,17 +1136,17 @@ function buildBookPrintHtml(rows){
   }
   .book-photo-grid .book-photo:only-child img{
     height:auto;
-    max-height:92mm;
+    max-height:66mm;
     object-fit:contain
   }
 
   .book-fields{
     display:grid;
-    gap:2mm;
-    margin-top:3mm
+    gap:1.4mm;
+    margin-top:2mm
   }
   .book-field{
-    padding:2.2mm 0 0;
+    padding:1.5mm 0 0;
     border-top:1px solid #eee5df;
     break-inside:avoid
   }
@@ -1137,8 +1159,8 @@ function buildBookPrintHtml(rows){
   }
   .book-field-text{
     font-family:Georgia,"Apple SD Gothic Neo",serif;
-    font-size:10.8pt;
-    line-height:1.6;
+    font-size:9.2pt;
+    line-height:1.48;
     letter-spacing:-.02em;
     color:#3f3935;
     word-break:keep-all;
