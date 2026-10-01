@@ -241,41 +241,121 @@ async function loadEntry(dateKey){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+function formatArchiveDate(dateKey){
+  const [y,m,d]=dateKey.split("-");
+  return `${y}. ${m}. ${d}`;
+}
+
+function conditionTextFromValue(v){
+  return ({
+    1:"매우 힘듦",
+    2:"조금 힘듦",
+    3:"보통",
+    4:"좋음",
+    5:"아주 좋음"
+  })[Number(v)] || "보통";
+}
+
+function buildEntryPreview(value){
+  return (
+    value.bodyNote ||
+    value.food ||
+    value.pain ||
+    value.mood ||
+    value.movement ||
+    "기록이 저장되어 있습니다."
+  );
+}
+
 async function loadRecentEntries(){
   if(!currentUser) return;
   els.recentEntries.innerHTML='<p class="muted">불러오는 중…</p>';
+
   try{
-    const q=query(ref(db,`users/${currentUser.uid}/diary`),orderByKey(),limitToLast(12));
+    const q=query(
+      ref(db,`users/${currentUser.uid}/diary`),
+      orderByKey(),
+      limitToLast(12)
+    );
+
     const snap=await get(q);
     const rows=[];
     snap.forEach(child=>rows.push({key:child.key,value:child.val()}));
     rows.reverse();
 
     els.recentEntries.innerHTML="";
+
     if(!rows.length){
-      els.recentEntries.innerHTML='<p class="muted">아직 저장된 몸의 일기가 없습니다.</p>';
+      els.recentEntries.innerHTML='<div class="empty-archive"><div class="empty-icon">◌</div><strong>아직 저장된 몸의 일기가 없습니다.</strong><span>첫 기록을 남기면 이곳에 차곡차곡 쌓입니다.</span></div>';
       return;
     }
 
     rows.forEach(({key,value})=>{
       const row=document.createElement("div");
       row.className="entry-item";
+
+      const accent=document.createElement("div");
+      const moodIndex=(Number(value.condition||3)-1)%5;
+      accent.className=`entry-accent accent-${moodIndex+1}`;
+
       const btn=document.createElement("button");
       btn.type="button";
       btn.dataset.date=key;
 
+      const top=document.createElement("div");
+      top.className="entry-top";
+
+      const heading=document.createElement("div");
+      heading.className="entry-heading";
+
       const date=document.createElement("span");
       date.className="entry-date";
-      date.textContent=key.replaceAll("-",". ");
+      date.textContent=formatArchiveDate(key);
+
+      const age=document.createElement("span");
+      age.className="entry-age";
+      age.textContent=ageTextForKey(key);
+
+      heading.append(date,age);
+
+      const chips=document.createElement("div");
+      chips.className="entry-chips";
+
+      const conditionChip=document.createElement("span");
+      conditionChip.className="entry-chip";
+      conditionChip.textContent=`컨디션 ${conditionTextFromValue(value.condition)}`;
+      chips.appendChild(conditionChip);
+
+      const photoCount=Array.isArray(value.photos)?value.photos.length:0;
+      if(photoCount>0){
+        const photoChip=document.createElement("span");
+        photoChip.className="entry-chip photo-chip";
+        photoChip.textContent=`사진 ${photoCount}장`;
+        chips.appendChild(photoChip);
+      }
+
+      top.append(heading,chips);
 
       const preview=document.createElement("span");
       preview.className="entry-preview";
-      preview.textContent=value.bodyNote||value.pain||value.mood||((value.photos||[]).length?`사진 ${(value.photos||[]).length}장`:"기록 있음");
+      preview.textContent=buildEntryPreview(value);
 
-      btn.append(date,preview);
-      row.append(btn);
+      const meta=document.createElement("span");
+      meta.className="entry-meta";
+      meta.textContent=value.mood
+        ? `오늘의 기분 · ${String(value.mood).slice(0,28)}`
+        : "기록 자세히 보기";
+
+      btn.append(top,preview,meta);
+
+      const arrow=document.createElement("span");
+      arrow.className="entry-arrow";
+      arrow.textContent="›";
+
+      row.append(accent,btn,arrow);
       els.recentEntries.append(row);
     });
+
   }catch(err){
     console.error(err);
     els.recentEntries.innerHTML='<p class="muted">기록을 불러오지 못했습니다.</p>';
