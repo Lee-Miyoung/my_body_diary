@@ -166,6 +166,7 @@ function resetUserScreen(){
 
 function renderPhotos(){
   els.photoPreview.innerHTML="";
+
   currentPhotos.forEach((src,index)=>{
     const item=document.createElement("div");
     item.className="photo-item";
@@ -178,17 +179,49 @@ function renderPhotos(){
     const del=document.createElement("button");
     del.className="photo-remove";
     del.type="button";
+    del.setAttribute("aria-label","사진 삭제");
     del.textContent="×";
-    del.addEventListener("click",e=>{
+
+    del.addEventListener("click",async e=>{
       e.stopPropagation();
-      currentPhotos.splice(index,1);
-      renderPhotos();
-      setSaveState("변경 있음");
+
+      const ok=confirm("이 사진을 삭제할까요?");
+      if(!ok) return;
+
+      const nextPhotos=currentPhotos.filter((_,i)=>i!==index);
+
+      try{
+        del.disabled=true;
+
+        // 아직 저장하지 않은 새 기록이라면 화면에서만 제거
+        if(previewMode || !currentUser || !selectedDateKey || !loadedEntryExists){
+          currentPhotos=nextPhotos;
+          renderPhotos();
+          setSaveState("변경 있음");
+          return;
+        }
+
+        // 이미 저장된 기록의 사진은 Firebase에서도 즉시 제거
+        const photosRef=ref(db,`users/${currentUser.uid}/diary/${selectedDateKey}/photos`);
+        await set(photosRef,nextPhotos.length ? nextPhotos : null);
+
+        currentPhotos=nextPhotos;
+        renderPhotos();
+        setSaveState("사진 삭제됨",true);
+        await loadRecentEntries();
+
+      }catch(err){
+        console.error(err);
+        alert("사진을 삭제하지 못했습니다. 다시 시도해주세요.");
+      }finally{
+        del.disabled=false;
+      }
     });
 
     item.append(img,del);
     els.photoPreview.appendChild(item);
   });
+
   els.photoCountText.textContent=`${currentPhotos.length}장`;
 }
 
@@ -361,6 +394,7 @@ async function loadCalendarMonth(year,month){
     renderCalendar(year,month);
     return;
   }
+
   if(!currentUser){
     calendarRecordDates=new Set();
     renderCalendar(year,month);
@@ -368,17 +402,27 @@ async function loadCalendarMonth(year,month){
   }
 
   try{
-    const start=`${year}-${String(month).padStart(2,"0")}-01`;
-    const end=`${year}-${String(month).padStart(2,"0")}-31`;
-    const q=query(ref(db,`users/${currentUser.uid}/diary`),orderByKey(),startAt(start),endAt(end));
-    const snap=await get(q);
+    // 기록 수가 많지 않은 개인 일기이므로 diary 키를 한 번 읽고
+    // 현재 달에 해당하는 날짜만 골라 표시합니다.
+    // 쿼리 인덱스/범위 문제 없이 기록 점이 안정적으로 표시됩니다.
+    const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
+
+    const prefix=`${year}-${String(month).padStart(2,"0")}-`;
     const dates=new Set();
-    snap.forEach(child=>dates.add(child.key));
+
+    snap.forEach(child=>{
+      if(String(child.key||"").startsWith(prefix)){
+        dates.add(child.key);
+      }
+    });
+
     calendarRecordDates=dates;
+
   }catch(err){
     console.error("calendar load failed",err);
     calendarRecordDates=new Set();
   }
+
   renderCalendar(year,month);
 }
 
