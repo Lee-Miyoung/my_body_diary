@@ -950,7 +950,7 @@ function makeBookEntryHtml(dateKey,value,index,total){
     : "";
 
   return `
-    <section class="book-entry page">
+    <section class="book-entry">
       <div class="book-entry-number">${String(index+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}</div>
       <div class="book-entry-date">${escapeBookHtml(formatKoreanShortDate(dateKey))}</div>
       <div class="book-entry-age">${escapeBookHtml(age)}</div>
@@ -973,7 +973,6 @@ function makeBookEntryHtml(dateKey,value,index,total){
       </div>
     </section>`;
 }
-
 function buildBookPrintHtml(rows){
   const firstDate=rows[0].key;
   const lastDate=rows[rows.length-1].key;
@@ -987,101 +986,199 @@ function buildBookPrintHtml(rows){
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>몸의 일기 · ${titleName}</title>
 <style>
-  @page{size:A4;margin:0}
+  @page{size:A4;margin:12mm 11mm}
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:#eee8e3;color:#2f2926}
+  html,body{margin:0;padding:0;background:#fff;color:#2f2926}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
     -webkit-print-color-adjust:exact;
     print-color-adjust:exact;
   }
+
   .print-toolbar{
     position:sticky;top:0;z-index:9999;
     display:flex;justify-content:space-between;align-items:center;gap:12px;
-    padding:12px 14px;background:#211d1b;color:#fff;
-    font-size:13px
+    padding:10px 12px;background:#211d1b;color:#fff;font-size:13px
   }
   .print-toolbar button{
-    border:0;border-radius:999px;padding:10px 16px;
+    border:0;border-radius:999px;padding:9px 14px;
     background:#fff;color:#211d1b;font-weight:800
   }
-  .book{width:210mm;margin:0 auto;background:#fffaf7}
-  .page{
-    position:relative;
-    width:210mm;
-    min-height:297mm;
-    padding:18mm 17mm 18mm;
-    background:#fffaf7;
-    page-break-after:always;
-    break-after:page;
-    overflow:hidden
+
+  .book{
+    width:100%;
+    max-width:188mm;
+    margin:0 auto;
+    background:#fff;
   }
-  .page:last-child{page-break-after:auto;break-after:auto}
 
-  .cover{
-    display:flex;flex-direction:column;justify-content:center;
-    background:
-      radial-gradient(circle at 88% 10%,rgba(228,137,158,.22),transparent 70mm),
-      radial-gradient(circle at 8% 94%,rgba(130,195,166,.20),transparent 65mm),
-      linear-gradient(180deg,#fffaf7,#f8f0ea)
+  .book-header{
+    padding:0 0 7mm;
+    margin-bottom:5mm;
+    border-bottom:1px solid #e7ddd6;
   }
-  .kicker{font-size:10pt;font-weight:800;letter-spacing:.28em;color:#9d7d83;margin-bottom:7mm}
-  .cover h1{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:38pt;line-height:1.18;letter-spacing:-.05em}
-  .cover-name{margin:7mm 0 0;font-size:17pt;color:#6d625c}
-  .cover-line{width:28mm;height:1mm;margin:13mm 0 9mm;border-radius:99px;background:linear-gradient(90deg,#df8196,#a78bd3,#7fbda2)}
-  .cover-copy{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:15pt;line-height:1.8;color:#5a504a}
-  .cover-meta{display:grid;grid-template-columns:1fr;gap:3mm;margin-top:18mm;max-width:115mm}
-  .cover-meta div{padding:4mm 5mm;border:1px solid #eadcd4;border-radius:4mm;background:rgba(255,255,255,.70)}
-  .cover-meta span{display:block;font-size:8.5pt;color:#9c8d84;margin-bottom:1.5mm}
-  .cover-meta strong{font-size:10.5pt;line-height:1.45}
-
-  .opening,.ending{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-    background:linear-gradient(145deg,#fae8ed,#f5f0fb 50%,#e9f3ed)
+  .kicker{
+    font-size:8pt;font-weight:800;letter-spacing:.24em;
+    color:#9d7d83;margin-bottom:2.5mm
   }
-  .opening p,.ending p{margin:0;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:21pt;line-height:1.8;color:#544945}
-  .opening strong,.ending strong{display:block;margin-top:8mm;font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:16pt;line-height:1.65}
-  .ending small{margin-top:9mm;font-size:9pt;color:#90837b}
+  .book-header h1{
+    margin:0;
+    font-family:Georgia,"Apple SD Gothic Neo",serif;
+    font-size:25pt;
+    line-height:1.15;
+    letter-spacing:-.04em
+  }
+  .book-header .subtitle{
+    margin:2mm 0 0;
+    font-size:10pt;
+    color:#6f655f
+  }
+  .book-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:2mm;
+    margin-top:4mm
+  }
+  .book-meta span{
+    padding:1.7mm 2.5mm;
+    border-radius:999px;
+    background:#f5edf1;
+    font-size:7.5pt;
+    color:#7c676e
+  }
 
-  .book-entry-number{font-size:8.5pt;font-weight:800;letter-spacing:.16em;color:#a38f85;margin-bottom:7mm}
-  .book-entry-date{font-family:Georgia,"Apple SD Gothic Neo",serif;font-size:27pt;line-height:1.2;font-weight:600;letter-spacing:-.04em}
-  .book-entry-age{margin-top:2mm;font-size:10pt;color:#8d8179}
-  .book-entry-chips{display:flex;flex-wrap:wrap;gap:2mm;margin-top:5mm}
-  .book-entry-chips span{padding:2mm 3mm;border-radius:999px;background:#f2e9f5;color:#755f88;font-size:8.5pt;font-weight:700}
+  .book-entry{
+    padding:6mm 0 7mm;
+    border-bottom:1px solid #e9dfd8;
+    break-inside:auto;
+    page-break-inside:auto;
+  }
+  .book-entry:last-child{border-bottom:0}
 
-  .book-photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;margin:8mm 0 8mm}
-  .book-photo{margin:0;overflow:hidden;border-radius:4mm;background:#efe9e4}
-  .book-photo img{display:block;width:100%;height:62mm;object-fit:cover}
-  .book-photo-grid .book-photo:only-child img{height:86mm}
+  .book-entry-number{
+    font-size:7pt;
+    font-weight:800;
+    letter-spacing:.14em;
+    color:#a28e84;
+    margin-bottom:1.5mm
+  }
+  .book-entry-date{
+    font-family:Georgia,"Apple SD Gothic Neo",serif;
+    font-size:21pt;
+    line-height:1.2;
+    font-weight:600;
+    letter-spacing:-.04em
+  }
+  .book-entry-age{
+    margin-top:1mm;
+    font-size:8.5pt;
+    color:#8d8179
+  }
 
-  .book-fields{display:grid;gap:4mm;margin-top:7mm}
-  .book-field{padding:4mm 0;border-top:1px solid #e9ddd5;break-inside:avoid}
-  .book-field-label{font-size:8.5pt;font-weight:800;letter-spacing:.06em;color:#9b8178;margin-bottom:2mm}
+  .book-entry-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1.5mm;
+    margin-top:3mm
+  }
+  .book-entry-chips span{
+    padding:1.5mm 2.2mm;
+    border-radius:999px;
+    background:#f2e9f5;
+    color:#755f88;
+    font-size:7.5pt;
+    font-weight:700
+  }
+
+  .book-photo-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:2mm;
+    margin:4mm 0
+  }
+  .book-photo{
+    margin:0;
+    overflow:hidden;
+    border-radius:3mm;
+    background:#efe9e4;
+    break-inside:avoid
+  }
+  .book-photo img{
+    display:block;
+    width:100%;
+    height:43mm;
+    object-fit:cover
+  }
+  .book-photo-grid .book-photo:only-child{
+    grid-column:1/-1
+  }
+  .book-photo-grid .book-photo:only-child img{
+    height:auto;
+    max-height:92mm;
+    object-fit:contain
+  }
+
+  .book-fields{
+    display:grid;
+    gap:2mm;
+    margin-top:3mm
+  }
+  .book-field{
+    padding:2.2mm 0 0;
+    border-top:1px solid #eee5df;
+    break-inside:avoid
+  }
+  .book-field-label{
+    font-size:7.3pt;
+    font-weight:800;
+    letter-spacing:.04em;
+    color:#9b8178;
+    margin-bottom:1mm
+  }
   .book-field-text{
     font-family:Georgia,"Apple SD Gothic Neo",serif;
-    font-size:12.5pt;line-height:1.75;letter-spacing:-.025em;
-    color:#3f3935;white-space:normal;word-break:keep-all;overflow-wrap:anywhere
+    font-size:10.8pt;
+    line-height:1.6;
+    letter-spacing:-.02em;
+    color:#3f3935;
+    word-break:keep-all;
+    overflow-wrap:anywhere
+  }
+
+  .book-ending{
+    padding:7mm 0 2mm;
+    text-align:center;
+    color:#7d716a
+  }
+  .book-ending p{
+    margin:0;
+    font-family:Georgia,"Apple SD Gothic Neo",serif;
+    font-size:11pt;
+    line-height:1.6
+  }
+  .book-ending small{
+    display:block;
+    margin-top:2mm;
+    font-size:7pt
   }
 
   .note{
     position:fixed;left:12px;right:12px;bottom:12px;
-    padding:10px 12px;border-radius:12px;background:rgba(33,29,27,.92);
-    color:#fff;font-size:12px;z-index:9998;text-align:center
+    padding:9px 10px;border-radius:10px;
+    background:rgba(33,29,27,.92);color:#fff;
+    font-size:12px;z-index:9998;text-align:center
   }
 
   @media print{
     html,body{background:#fff}
     .print-toolbar,.note{display:none!important}
-    .book{margin:0;width:210mm}
+    .book{max-width:none;margin:0}
   }
 
   @media screen and (max-width:900px){
-    .book{width:100%}
-    .page{width:100%;min-height:auto;padding:34px 24px 60px}
-    .cover{min-height:100vh}
-    .opening,.ending{min-height:100vh}
-    .book-photo-grid{grid-template-columns:1fr}
-    .book-photo img,.book-photo-grid .book-photo:only-child img{height:auto;max-height:65vh;object-fit:contain}
+    .book{max-width:none;padding:18px 16px 60px}
+    .book-photo-grid{grid-template-columns:1fr 1fr}
+    .book-photo img{height:auto;max-height:42vh}
   }
 </style>
 </head>
@@ -1092,35 +1189,27 @@ function buildBookPrintHtml(rows){
   </div>
 
   <main class="book">
-    <section class="page cover">
+    <header class="book-header">
       <div class="kicker">MY BODY DIARY</div>
       <h1>몸이 기억하는 시간</h1>
-      <p class="cover-name">${titleName}의 몸의 일기</p>
-      <div class="cover-line"></div>
-      <p class="cover-copy">몸은 매일 조금씩 달라지고,<br>기록은 그 시간을 잊지 않게 해줍니다.</p>
+      <p class="subtitle">${titleName}의 몸의 일기</p>
 
-      <div class="cover-meta">
-        <div><span>나의 시작일</span><strong>${escapeBookHtml(birthText(userProfile.birthDate))}</strong></div>
-        <div><span>기록 기간</span><strong>${escapeBookHtml(formatArchiveDate(firstDate))} - ${escapeBookHtml(formatArchiveDate(lastDate))}</strong></div>
-        <div><span>기록 수</span><strong>${rows.length}일</strong></div>
+      <div class="book-meta">
+        <span>시작일 · ${escapeBookHtml(birthText(userProfile.birthDate))}</span>
+        <span>기록 기간 · ${escapeBookHtml(formatArchiveDate(firstDate))} - ${escapeBookHtml(formatArchiveDate(lastDate))}</span>
+        <span>총 ${rows.length}일</span>
       </div>
-    </section>
-
-    <section class="page opening">
-      <p>아픈 날도, 가벼운 날도,<br>아무렇지 않은 날도.</p>
-      <strong>이 책은 내가 지나온 몸의 시간입니다.</strong>
-    </section>
+    </header>
 
     ${rows.map((row,index)=>makeBookEntryHtml(row.key,row.value,index,rows.length)).join("")}
 
-    <section class="page ending">
+    <footer class="book-ending">
       <p>오늘까지의 몸을 기록했습니다.</p>
-      <strong>${titleName}의 몸의 시간은 계속됩니다.</strong>
       <small>PDF 생성일 · ${escapeBookHtml(formatArchiveDate(exportDate))}</small>
-    </section>
+    </footer>
   </main>
 
-  <div class="note">화면이 모두 뜬 뒤 위의 <b>PDF로 저장 / 인쇄</b> 버튼을 누르세요.</div>
+  <div class="note">화면 확인 후 위의 <b>PDF로 저장 / 인쇄</b> 버튼을 누르세요.</div>
 
 <script>
 (function(){
@@ -1135,17 +1224,15 @@ function buildBookPrintHtml(rows){
     }));
   }
   waitForImages().then(function(){
-    document.title="몸의일기_${String(userProfile?.name||"나").replace(/[\\/:*?"<>|]/g,"_")}_${exportDate}";
     setTimeout(function(){
       try{ window.print(); }catch(e){}
-    },700);
+    },500);
   });
 })();
 <\/script>
 </body>
 </html>`;
 }
-
 async function exportDiaryBookPdf(){
   if(previewMode){
     alert("PDF 책 내보내기는 로그인 후 실제 기록에서 사용할 수 있습니다.");
