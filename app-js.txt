@@ -266,13 +266,18 @@ async function saveEntry(){
 
 async function loadEntry(dateKey){
   if(!currentUser || !userProfile) return;
+
+  // 상단 배너는 항상 '오늘'을 유지합니다.
+  // 과거 일기를 열어도 오늘 날짜/오늘 나이는 바뀌지 않습니다.
   const snap=await get(entryRef(currentUser.uid,dateKey));
-  const [y,m,d]=dateKey.split("-").map(Number);
-  updateHeader({y,m,d});
+
+  selectedDateKey=dateKey;
+  els.archiveDate.value=dateKey;
+
   clearForm(true);
 
   if(!snap.exists()){
-    setSaveState("새 기록");
+    setSaveState(`${formatArchiveDate(dateKey)} · 새 기록`);
     return;
   }
 
@@ -282,7 +287,14 @@ async function loadEntry(dateKey){
   ["sleep","pain","digestion","movement","food","mood","bodyNote"].forEach(k=>els[k].value=v[k]||"");
   currentPhotos=Array.isArray(v.photos)?v.photos:[];
   renderPhotos();
-  setSaveState("불러옴",true);
+
+  const todayKey=ymdKey(seoulYMD());
+  if(dateKey===todayKey){
+    setSaveState("오늘 기록",true);
+  }else{
+    setSaveState(`${formatArchiveDate(dateKey)} 기록 보는 중`,true);
+  }
+
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -522,11 +534,14 @@ async function saveProfile(){
     els.profileLayer.classList.add("hidden");
     els.profileCancelBtn.classList.add("hidden");
 
-    const target=selectedDateKey
-      ? (()=>{ const [y,m,d]=selectedDateKey.split("-").map(Number); return {y,m,d}; })()
-      : seoulYMD();
+    // 내 정보를 수정해도 상단 배너는 항상 오늘 날짜/오늘 나이를 표시
+    updateHeader(seoulYMD());
 
-    updateHeader(target);
+    // 과거 기록을 보고 있던 중이었다면 저장 대상 날짜는 그대로 유지
+    if(selectedDateKey){
+      els.archiveDate.value=selectedDateKey;
+    }
+
     await loadRecentEntries();
     setSaveState("내 정보 저장됨",true);
   }catch(err){
@@ -538,8 +553,11 @@ async function saveProfile(){
 async function startDiary(){
   if(!userProfile) return;
   currentBirth=parseBirthDate(userProfile.birthDate);
+
+  // 상단 배너는 로그인 시점의 '오늘' 날짜/나이로 고정
+  updateHeader(seoulYMD());
+
   const today=ymdKey(seoulYMD());
-  updateHeader();
   await loadEntry(today);
   await loadRecentEntries();
 }
