@@ -13,7 +13,7 @@ window.BODY_DIARY_FIREBASE_CONFIG = {
 // 새로 추가할 5명은 아래 이메일 목록에 반드시 넣어야 합니다.
 window.BODY_DIARY_ALLOWED_EMAILS = [
   "YOUR_GOOGLE_EMAIL@gmail.com",
-  "wonmigood@naver.com",
+  "USER2@gmail.com",
   "USER3@gmail.com",
   "USER4@gmail.com",
   "USER5@gmail.com",

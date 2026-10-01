@@ -33,7 +33,7 @@ const els = {
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), photoCountText:$("photoCountText"),
   saveBtn:$("saveBtn"), clearBtn:$("clearBtn"), pdfBtn:$("pdfBtn"), galleryBtn:$("galleryBtn"),
   loginLayer:$("loginLayer"), setupLayer:$("setupLayer"), profileLayer:$("profileLayer"),
-  googleLoginBtn:$("googleLoginBtn"), loginMessage:$("loginMessage"),
+  googleLoginBtn:$("googleLoginBtn"), loginMessage:$("loginMessage"), previewBtn:$("previewBtn"), previewBanner:$("previewBanner"), exitPreviewBtn:$("exitPreviewBtn"),
   logoutBtn:$("logoutBtn"), saveState:$("saveState"),
   recentEntries:$("recentEntries"), archiveDate:$("archiveDate"), loadDateBtn:$("loadDateBtn"),
   profileName:$("profileName"), profileBirthDate:$("profileBirthDate"), profileSaveBtn:$("profileSaveBtn"), profileMessage:$("profileMessage"),
@@ -50,6 +50,7 @@ let currentPhotos = [];
 let galleryItems = [];
 let galleryIndex = 0;
 let currentBirth = null;
+let previewMode = false;
 
 function seoulYMD(date = new Date()){
   const parts = new Intl.DateTimeFormat("en-CA",{
@@ -209,6 +210,10 @@ function payload(){
 function entryRef(uid,dateKey){ return ref(db,`users/${uid}/diary/${dateKey}`); }
 
 async function saveEntry(){
+  if(previewMode){
+    alert("미리보기 모드에서는 저장되지 않습니다. 실제 사용은 Google 로그인 후 가능합니다.");
+    return;
+  }
   if(!currentUser || !userProfile) return;
   els.saveBtn.disabled=true;
   setSaveState("저장 중…");
@@ -451,6 +456,90 @@ async function startDiary(){
   await loadRecentEntries();
 }
 
+
+function renderPreviewEntries(){
+  const demos = [
+    {key:"2026-09-28", value:{condition:4, bodyNote:"오전에는 몸이 조금 무거웠지만 오후 산책 후 한결 가벼워졌다.", mood:"차분하고 편안함", photos:["demo1"]}},
+    {key:"2026-09-20", value:{condition:2, bodyNote:"잠이 부족해서 하루 종일 몸이 무거웠다. 따뜻한 차를 마시고 일찍 쉬었다.", mood:"조금 지침", photos:[]}},
+    {key:"2026-09-07", value:{condition:5, bodyNote:"아침 공기가 좋아 오래 걷고 싶었던 날. 몸도 마음도 가벼웠다.", mood:"상쾌함", photos:["demo1","demo2"]}}
+  ];
+  els.recentEntries.innerHTML="";
+  demos.forEach(({key,value})=>{
+    const row=document.createElement("div");
+    row.className="entry-item";
+    const accent=document.createElement("div");
+    accent.className=`entry-accent accent-${value.condition}`;
+    const btn=document.createElement("button");
+    btn.type="button";
+    const top=document.createElement("div");
+    top.className="entry-top";
+    const heading=document.createElement("div");
+    heading.className="entry-heading";
+    const date=document.createElement("span");
+    date.className="entry-date"; date.textContent=formatArchiveDate(key);
+    const age=document.createElement("span");
+    age.className="entry-age"; age.textContent=ageTextForKey(key);
+    heading.append(date,age);
+    const chips=document.createElement("div");
+    chips.className="entry-chips";
+    const conditionChip=document.createElement("span");
+    conditionChip.className="entry-chip"; conditionChip.textContent=`컨디션 ${conditionTextFromValue(value.condition)}`;
+    chips.appendChild(conditionChip);
+    if(value.photos.length){
+      const pc=document.createElement("span");
+      pc.className="entry-chip photo-chip"; pc.textContent=`사진 ${value.photos.length}장`;
+      chips.appendChild(pc);
+    }
+    top.append(heading,chips);
+    const preview=document.createElement("span");
+    preview.className="entry-preview"; preview.textContent=value.bodyNote;
+    const meta=document.createElement("span");
+    meta.className="entry-meta"; meta.textContent=`오늘의 기분 · ${value.mood}`;
+    btn.append(top,preview,meta);
+    const arrow=document.createElement("span");
+    arrow.className="entry-arrow"; arrow.textContent="›";
+    row.append(accent,btn,arrow);
+    els.recentEntries.appendChild(row);
+  });
+}
+
+function enterPreviewMode(){
+  previewMode=true;
+  userProfile={name:"미영",birthDate:"1976-11-30",email:"preview@example.com"};
+  currentBirth=parseBirthDate(userProfile.birthDate);
+
+  els.loginLayer.classList.add("hidden");
+  els.profileLayer.classList.add("hidden");
+  els.logoutBtn.classList.add("hidden");
+  els.previewBanner.classList.remove("hidden");
+
+  updateHeader({y:2026,m:10,d:1});
+  els.sleep.value="6시간 40분";
+  els.pain.value="오른쪽 어깨가 조금 뻐근함";
+  els.digestion.value="아침은 가벼움, 오후엔 조금 더부룩함";
+  els.movement.value="가볍게 40분 걷기";
+  els.food.value="점심 이후 속이 조금 더부룩했지만 따뜻한 차를 마신 뒤 괜찮아졌다.";
+  els.mood.value="차분함";
+  els.bodyNote.value="오늘은 몸이 크게 아프지는 않았지만 어깨와 목이 조금 뻣뻣했다. 저녁에는 일찍 쉬고 싶다.";
+  els.condition.value="3";
+  els.conditionOutput.value="3 · 보통";
+  currentPhotos=[];
+  renderPhotos();
+  renderPreviewEntries();
+  setSaveState("미리보기");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function exitPreviewMode(){
+  previewMode=false;
+  userProfile=null;
+  currentBirth=null;
+  clearForm(true);
+  els.previewBanner.classList.add("hidden");
+  els.loginLayer.classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
 let touchStartX=null;
 els.galleryModal.addEventListener("touchstart",e=>{ touchStartX=e.changedTouches[0].clientX; },{passive:true});
 els.galleryModal.addEventListener("touchend",e=>{
@@ -494,7 +583,7 @@ function setupEvents(){
     if(confirm("화면에 입력한 내용을 지울까요? 이미 저장된 기록은 삭제되지 않습니다.")) clearForm(true);
   });
   els.pdfBtn.addEventListener("click",()=>window.print());
-  els.galleryBtn.addEventListener("click",()=>openGalleryAt(()=>false));
+  els.galleryBtn.addEventListener("click",()=>previewMode ? alert("미리보기에서는 실제 사진 갤러리를 열지 않습니다.") : openGalleryAt(()=>false));
   els.logoutBtn.addEventListener("click",()=>signOut(auth));
   els.loadDateBtn.addEventListener("click",()=>els.archiveDate.value&&loadEntry(els.archiveDate.value));
   els.recentEntries.addEventListener("click",e=>{
@@ -502,6 +591,8 @@ function setupEvents(){
     if(btn) loadEntry(btn.dataset.date);
   });
   els.profileSaveBtn.addEventListener("click",saveProfile);
+  els.previewBtn.addEventListener("click",enterPreviewMode);
+  els.exitPreviewBtn.addEventListener("click",exitPreviewMode);
 
   els.galleryCloseBtn.addEventListener("click",closeGallery);
   els.galleryPrevBtn.addEventListener("click",()=>moveGallery(-1));
