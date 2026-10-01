@@ -913,6 +913,196 @@ els.galleryModal.addEventListener("touchend",e=>{
   touchStartX=null;
 },{passive:true});
 
+
+function escapeBookHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function bookText(value){
+  return escapeBookHtml(value).replace(/\n/g,"<br>");
+}
+
+function loadHtml2PdfLibrary(){
+  if(window.html2pdf) return Promise.resolve(window.html2pdf);
+
+  return new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-body-diary-pdf]');
+    if(existing){
+      existing.addEventListener("load",()=>resolve(window.html2pdf),{once:true});
+      existing.addEventListener("error",()=>reject(new Error("PDF 도구를 불러오지 못했습니다.")),{once:true});
+      return;
+    }
+
+    const script=document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js";
+    script.async=true;
+    script.dataset.bodyDiaryPdf="1";
+    script.onload=()=>resolve(window.html2pdf);
+    script.onerror=()=>reject(new Error("PDF 도구를 불러오지 못했습니다."));
+    document.head.appendChild(script);
+  });
+}
+
+function bookField(label,value){
+  const text=String(value||"").trim();
+  if(!text) return "";
+  return `
+    <div class="book-field">
+      <div class="book-field-label">${escapeBookHtml(label)}</div>
+      <div class="book-field-text">${bookText(text)}</div>
+    </div>`;
+}
+
+function makeBookEntryHtml(dateKey,value,index,total){
+  const photos=Array.isArray(value.photos)?value.photos:[];
+  const age=ageTextForKey(dateKey);
+  const condition=conditionTextFromValue(value.condition||3);
+  const photoHtml=photos.length
+    ? `<div class="book-photo-grid">${photos.map((src,i)=>`
+        <figure class="book-photo">
+          <img src="${src}" alt="${escapeBookHtml(dateKey)} 사진 ${i+1}">
+        </figure>`).join("")}</div>`
+    : "";
+
+  return `
+    <section class="book-entry">
+      <div class="book-entry-number">${String(index+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}</div>
+      <div class="book-entry-date">${escapeBookHtml(formatKoreanShortDate(dateKey))}</div>
+      <div class="book-entry-age">${escapeBookHtml(age)}</div>
+      <div class="book-entry-chips">
+        <span>컨디션 · ${escapeBookHtml(condition)}</span>
+        ${value.mood ? `<span>기분 · ${escapeBookHtml(value.mood)}</span>` : ""}
+      </div>
+
+      ${photoHtml}
+
+      <div class="book-fields">
+        ${bookField("수면",value.sleep)}
+        ${bookField("몸의 불편함",value.pain)}
+        ${bookField("소화 · 배변",value.digestion)}
+        ${bookField("움직임 · 운동",value.movement)}
+        ${bookField("먹은 것 · 몸의 반응",value.food)}
+        ${bookField("오늘의 기분",value.mood)}
+        ${bookField("오늘의 몸 이야기",value.bodyNote)}
+      </div>
+    </section>`;
+}
+
+function waitForBookImages(root){
+  const images=[...root.querySelectorAll("img")];
+  return Promise.all(images.map(img=>{
+    if(img.complete) return Promise.resolve();
+    return new Promise(resolve=>{
+      img.onload=resolve;
+      img.onerror=resolve;
+    });
+  }));
+}
+
+async function exportDiaryBookPdf(){
+  if(previewMode){
+    alert("PDF 책 내보내기는 로그인 후 실제 기록에서 사용할 수 있습니다.");
+    return;
+  }
+  if(!currentUser || !userProfile){
+    alert("먼저 로그인해주세요.");
+    return;
+  }
+
+  const oldText=els.pdfBtn.textContent;
+  els.pdfBtn.disabled=true;
+  els.pdfBtn.textContent="책 만드는 중…";
+
+  let book=null;
+
+  try{
+    const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
+    const rows=[];
+    snap.forEach(child=>rows.push({key:child.key,value:child.val()||{}}));
+    rows.sort((a,b)=>a.key.localeCompare(b.key));
+
+    if(!rows.length){
+      alert("아직 PDF로 만들 일기가 없습니다.");
+      return;
+    }
+
+    await loadHtml2PdfLibrary();
+
+    const firstDate=rows[0].key;
+    const lastDate=rows[rows.length-1].key;
+    const exportDate=ymdKey(seoulYMD());
+
+    book=document.createElement("div");
+    book.className="body-book-export";
+    book.innerHTML=`
+      <section class="book-cover">
+        <div class="book-cover-kicker">MY BODY DIARY</div>
+        <h1>몸이 기억하는 시간</h1>
+        <p class="book-cover-name">${escapeBookHtml(userProfile.name||"나")}의 몸의 일기</p>
+        <div class="book-cover-line"></div>
+        <p class="book-cover-copy">몸은 매일 조금씩 달라지고,<br>기록은 그 시간을 잊지 않게 해줍니다.</p>
+        <div class="book-cover-meta">
+          <div><span>나의 시작일</span><strong>${escapeBookHtml(birthText(userProfile.birthDate))}</strong></div>
+          <div><span>기록 기간</span><strong>${escapeBookHtml(formatArchiveDate(firstDate))} - ${escapeBookHtml(formatArchiveDate(lastDate))}</strong></div>
+          <div><span>기록 수</span><strong>${rows.length}일</strong></div>
+        </div>
+      </section>
+
+      <section class="book-opening">
+        <p>아픈 날도, 가벼운 날도,<br>아무렇지 않은 날도.</p>
+        <strong>이 책은 내가 지나온 몸의 시간입니다.</strong>
+      </section>
+
+      ${rows.map((row,index)=>makeBookEntryHtml(row.key,row.value,index,rows.length)).join("")}
+
+      <section class="book-ending">
+        <p>오늘까지의 몸을 기록했습니다.</p>
+        <strong>${escapeBookHtml(userProfile.name||"나")}의 몸의 시간은 계속됩니다.</strong>
+        <small>PDF 생성일 · ${escapeBookHtml(formatArchiveDate(exportDate))}</small>
+      </section>`;
+
+    document.body.appendChild(book);
+    await waitForBookImages(book);
+    await new Promise(resolve=>setTimeout(resolve,350));
+
+    const safeName=String(userProfile.name||"나")
+      .replace(/[\\/:*?"<>|]/g,"_")
+      .trim() || "나";
+
+    const options={
+      margin:[12,10,14,10],
+      filename:`몸의일기_${safeName}_${exportDate}.pdf`,
+      image:{type:"jpeg",quality:0.92},
+      html2canvas:{
+        scale:2,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:"#fffaf7",
+        logging:false,
+        scrollX:0,
+        scrollY:0
+      },
+      jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
+      pagebreak:{mode:["css","legacy"],before:".book-entry",after:[".book-cover",".book-opening"]}
+    };
+
+    await window.html2pdf().set(options).from(book).save();
+
+  }catch(err){
+    console.error(err);
+    alert("PDF를 만드는 중 문제가 생겼습니다. 사진이 아주 많다면 기록을 조금 나눠서 시도해주세요.");
+  }finally{
+    if(book) book.remove();
+    els.pdfBtn.disabled=false;
+    els.pdfBtn.textContent=oldText;
+  }
+}
+
 function setupEvents(){
   els.condition.addEventListener("input",()=>{
     els.conditionOutput.value=`${els.condition.value} · ${conditionLabel(els.condition.value)}`;
@@ -950,7 +1140,7 @@ function setupEvents(){
   els.clearBtn.addEventListener("click",()=>{
     if(confirm("화면에 입력한 내용을 지울까요? 이미 저장된 기록은 삭제되지 않습니다.")) clearForm(true);
   });
-  els.pdfBtn.addEventListener("click",()=>window.print());
+  els.pdfBtn.addEventListener("click",exportDiaryBookPdf);
   els.galleryBtn.addEventListener("click",()=>previewMode ? alert("미리보기에서는 실제 사진 갤러리를 열지 않습니다.") : openGalleryAt(()=>false));
   els.logoutBtn.addEventListener("click",()=>signOut(auth));
   els.profileBtn.addEventListener("click",openProfileEditor);
