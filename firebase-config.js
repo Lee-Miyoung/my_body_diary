@@ -13,8 +13,8 @@ window.BODY_DIARY_FIREBASE_CONFIG = {
 window.BODY_DIARY_ALLOWED_EMAILS = [
   "song4mi12@gmail.com",
   "wonmigood@naver.com",
-  "USER3@gmail.com",
-  "USER4@gmail.com",
+  "ilsuk2zo@hanmail.net",
+  "ppippi2902@gmail.com",
   "USER5@gmail.com",
   "USER6@gmail.com"
 ];
