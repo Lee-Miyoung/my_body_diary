@@ -293,56 +293,88 @@
 
   <!-- 로그인 -->
   <div id="loginLayer" class="overlay-layer invitation-layer">
-    <div class="login-card invitation-card">
-      <div class="invitation-glow ig1"></div>
-      <div class="invitation-glow ig2"></div>
+    <div class="login-card invitation-card special-invite-card">
+      <div class="invite-aurora ia1"></div>
+      <div class="invite-aurora ia2"></div>
+      <div class="invite-aurora ia3"></div>
 
-      <div class="invitation-topline">
+      <div class="special-ribbon" aria-hidden="true">
+        <span class="sr-rose"></span>
+        <span class="sr-peach"></span>
+        <span class="sr-butter"></span>
+        <span class="sr-mint"></span>
+        <span class="sr-violet"></span>
+        <span class="sr-sky"></span>
+      </div>
+
+      <div class="invitation-topline special-topline">
         <span class="invite-number">PRIVATE EDITION · 01</span>
         <span class="invite-dot"></span>
         <span class="invite-status">INVITATION ONLY</span>
       </div>
 
-      <div class="login-mark invitation-seal">日</div>
+      <div class="special-hero-row">
+        <div class="login-mark invitation-seal special-seal">日</div>
+
+        <div class="special-badge">
+          <span>ONLY</span>
+          <strong>6</strong>
+          <small>MEMBERS</small>
+        </div>
+      </div>
 
       <p class="eyebrow invitation-eyebrow">PRIVATE INVITATION JOURNAL</p>
       <h2>몸의 일기</h2>
 
-      <div class="invitation-copy">
-        <strong>누구에게나 열려 있는 공간이 아닙니다.</strong>
+      <div class="special-lead">
+        <strong>초대받은 소수만 들어올 수 있는<br>나만의 몸 기록 공간.</strong>
         <p>
-          초대받은 몇 사람만 자신의 몸의 시간을 기록하는<br>
-          작고 조용한 비공개 저널입니다.
-        </p>
-        <p class="invitation-subcopy">
-          매일의 작은 변화와 몸의 기억을<br>
-          오직 나만의 기록으로 남겨보세요.
+          매일의 작은 변화, 몸이 보내는 신호,<br>
+          오래 기억하고 싶은 순간을 조용히 쌓아두세요.
         </p>
       </div>
 
-      <div class="invitation-rule">
-        <span></span><i></i><span></span>
-      </div>
-
-      <div class="invite-access-note">
-        <div class="invite-lock">✦</div>
-        <div>
-          <strong>초대 전용 공간</strong>
-          <span>사전에 등록된 Google 계정만 입장할 수 있습니다.</span>
+      <div class="special-value-grid">
+        <div class="special-value sv-rose">
+          <span>01</span>
+          <strong>Private</strong>
+          <small>내 기록은 나만</small>
+        </div>
+        <div class="special-value sv-mint">
+          <span>02</span>
+          <strong>Memory</strong>
+          <small>사진과 일기를 함께</small>
+        </div>
+        <div class="special-value sv-violet">
+          <span>03</span>
+          <strong>Time</strong>
+          <small>몸의 시간을 차곡차곡</small>
         </div>
       </div>
 
-      <button id="googleLoginBtn" class="google-btn invitation-login-btn" type="button">
+      <div class="invitation-rule colorful-rule">
+        <span></span><i></i><span></span>
+      </div>
+
+      <div class="invite-access-note special-access-note">
+        <div class="invite-lock">✦</div>
+        <div>
+          <strong>당신은 초대받은 사용자입니다.</strong>
+          <span>사전에 등록된 Google 계정만 이 공간에 입장할 수 있습니다.</span>
+        </div>
+      </div>
+
+      <button id="googleLoginBtn" class="google-btn invitation-login-btn special-login-btn" type="button">
         <span class="google-mark">G</span>
         초대된 Google 계정으로 입장
       </button>
 
-      <button id="previewBtn" class="preview-btn invitation-preview-btn" type="button">
-        몸의 일기 둘러보기
+      <button id="previewBtn" class="preview-btn invitation-preview-btn special-preview-btn" type="button">
+        몸의 일기 미리 둘러보기
       </button>
 
-      <p class="invitation-footnote">
-        초대받지 않은 계정은 이 공간에 입장할 수 없습니다.
+      <p class="invitation-footnote special-footnote">
+        INVITATION REQUIRED · 등록되지 않은 계정은 입장할 수 없습니다.
       </p>
 
       <p id="loginMessage" class="form-message invitation-message"></p>

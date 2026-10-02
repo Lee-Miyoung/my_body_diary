@@ -1227,3 +1227,385 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
     min-height:48px;
   }
 }
+
+
+/* =========================================================
+   COLORFUL PRIVATE CLUB LOGIN
+   소수 초대형 · 컬러 프라이빗 저널
+   ========================================================= */
+
+.invitation-layer{
+  padding:24px!important;
+  background:
+    radial-gradient(circle at 10% 15%,rgba(247,190,205,.50),transparent 20rem),
+    radial-gradient(circle at 90% 12%,rgba(189,177,235,.42),transparent 21rem),
+    radial-gradient(circle at 8% 88%,rgba(180,226,205,.48),transparent 20rem),
+    radial-gradient(circle at 88% 88%,rgba(250,221,156,.38),transparent 18rem),
+    linear-gradient(145deg,#fff7f2 0%,#f8f1f7 48%,#eef8f3 100%)!important;
+}
+
+.special-invite-card{
+  width:min(500px,100%)!important;
+  padding:36px 36px 32px!important;
+  border-radius:36px!important;
+  border:1px solid rgba(219,199,192,.95)!important;
+  background:
+    linear-gradient(180deg,rgba(255,253,250,.985),rgba(255,248,246,.97))!important;
+  box-shadow:
+    0 38px 100px rgba(76,52,47,.18),
+    0 14px 40px rgba(165,143,215,.10)!important;
+  overflow:hidden!important;
+}
+
+.special-invite-card:before{
+  inset:10px!important;
+  border-radius:28px!important;
+  border:1px solid rgba(204,180,171,.28)!important;
+}
+
+.invite-aurora{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(2px);
+  pointer-events:none;
+  opacity:.75;
+}
+.ia1{
+  width:190px;height:190px;
+  right:-88px;top:-80px;
+  background:radial-gradient(circle,#f8cbd7 0%,rgba(248,203,215,.25) 58%,transparent 72%);
+}
+.ia2{
+  width:150px;height:150px;
+  left:-70px;bottom:72px;
+  background:radial-gradient(circle,#cfeadb 0%,rgba(207,234,219,.20) 58%,transparent 72%);
+}
+.ia3{
+  width:130px;height:130px;
+  right:18px;bottom:-58px;
+  background:radial-gradient(circle,#ded4f3 0%,rgba(222,212,243,.20) 58%,transparent 72%);
+}
+
+.special-ribbon{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+  margin-bottom:18px;
+}
+.special-ribbon span{
+  height:7px;
+  border-radius:999px;
+}
+.sr-rose{background:#e989a0}
+.sr-peach{background:#f2a071}
+.sr-butter{background:#dec457}
+.sr-mint{background:#7fc2a5}
+.sr-violet{background:#a78bd4}
+.sr-sky{background:#7fb8d7}
+
+.special-topline{
+  margin-bottom:22px!important;
+  font-size:9px!important;
+  letter-spacing:.19em!important;
+}
+
+.special-hero-row{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.special-seal{
+  width:72px!important;
+  height:72px!important;
+  border-radius:24px!important;
+  margin:0!important;
+  font-size:27px!important;
+  background:
+    linear-gradient(145deg,#e37d99 0%,#b889c5 48%,#7f8ed3 100%)!important;
+  box-shadow:
+    0 16px 34px rgba(159,105,151,.28),
+    0 1px 0 rgba(255,255,255,.42) inset!important;
+}
+
+.special-badge{
+  width:84px;
+  height:84px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    linear-gradient(145deg,#fff3ca 0%,#ffe5df 52%,#eee7fb 100%);
+  border:1px solid rgba(225,203,186,.90);
+  box-shadow:0 12px 26px rgba(137,107,90,.10);
+  transform:rotate(4deg);
+}
+.special-badge span,
+.special-badge small{
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.14em;
+  color:#9a7d73;
+}
+.special-badge strong{
+  margin:1px 0;
+  font:700 29px/1 "Inter",sans-serif;
+  color:#5a474b;
+}
+
+.invitation-eyebrow{
+  font-size:10px!important;
+  letter-spacing:.28em!important;
+  margin-bottom:8px!important;
+}
+
+.special-invite-card h2{
+  margin:0 0 18px!important;
+  font:600 42px/1.12 "Noto Serif KR",Georgia,serif!important;
+  letter-spacing:-.055em!important;
+  color:#2d2523!important;
+}
+
+.special-lead{
+  position:relative;
+  z-index:2;
+  margin-bottom:22px;
+}
+.special-lead strong{
+  display:block;
+  margin-bottom:11px;
+  font:600 20px/1.55 "Noto Serif KR",serif;
+  letter-spacing:-.035em;
+  color:#3a302d;
+}
+.special-lead p{
+  margin:0;
+  font:400 14px/1.85 "Noto Serif KR",serif;
+  color:#74655f;
+}
+
+.special-value-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:4px 0 21px;
+}
+.special-value{
+  min-height:116px;
+  border-radius:20px;
+  padding:14px 13px;
+  border:1px solid rgba(229,213,207,.90);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  box-shadow:0 9px 22px rgba(82,59,48,.05);
+}
+.special-value>span{
+  margin-bottom:auto;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.15em;
+  color:#9b8980;
+}
+.special-value strong{
+  font-size:14px;
+  margin-bottom:4px;
+  color:#3d3531;
+}
+.special-value small{
+  font-size:9px;
+  line-height:1.4;
+  color:#84776f;
+}
+.sv-rose{
+  background:linear-gradient(145deg,#fbe4ea,#fff9f7);
+}
+.sv-mint{
+  background:linear-gradient(145deg,#dff1e8,#fff9f7);
+}
+.sv-violet{
+  background:linear-gradient(145deg,#ebe5f9,#fff9f7);
+}
+
+.colorful-rule{
+  margin:20px 0 18px!important;
+}
+.colorful-rule span:first-child{
+  background:linear-gradient(90deg,transparent,#e68da1,#f0a06f,#dfc45d)!important;
+}
+.colorful-rule span:last-child{
+  background:linear-gradient(90deg,#7fc2a5,#a58fd7,#7fb8d7,transparent)!important;
+}
+.colorful-rule i{
+  width:9px!important;
+  height:9px!important;
+  background:linear-gradient(135deg,#e989a0,#a78bd4,#7fb8d7)!important;
+  box-shadow:0 0 0 5px rgba(189,161,210,.12)!important;
+}
+
+.special-access-note{
+  padding:15px 16px!important;
+  margin-bottom:15px!important;
+  border-radius:20px!important;
+  border:1px solid rgba(208,227,216,.96)!important;
+  background:
+    linear-gradient(135deg,#e2f3e9 0%,#f4f0fb 56%,#fff8ef 100%)!important;
+}
+.special-access-note .invite-lock{
+  width:40px!important;
+  height:40px!important;
+  flex-basis:40px!important;
+  border-radius:14px!important;
+  font-size:18px!important;
+}
+.special-access-note strong{
+  font-size:13px!important;
+  color:#486b59!important;
+}
+.special-access-note span{
+  font-size:11px!important;
+  line-height:1.55!important;
+  color:#72675f!important;
+}
+
+.special-login-btn{
+  min-height:58px!important;
+  font-size:14px!important;
+  border-radius:18px!important;
+  border:1px solid rgba(215,197,191,.96)!important;
+  background:
+    linear-gradient(180deg,#fff,#fff9f5)!important;
+  box-shadow:0 10px 24px rgba(84,60,50,.08)!important;
+}
+.special-login-btn .google-mark{
+  font-size:16px!important;
+}
+
+.special-preview-btn{
+  min-height:54px!important;
+  font-size:13px!important;
+  border-radius:18px!important;
+  color:#695984!important;
+  background:
+    linear-gradient(135deg,#f0e7fb 0%,#efe9fb 40%,#fbe7ee 100%)!important;
+  border:1px solid rgba(207,190,224,.98)!important;
+}
+
+.special-footnote{
+  margin-top:16px!important;
+  font-size:10px!important;
+  font-weight:700;
+  letter-spacing:.04em;
+  color:#9d8880!important;
+}
+
+@media(max-width:650px){
+  .invitation-layer{
+    padding:16px!important;
+  }
+
+  .special-invite-card{
+    padding:27px 22px 25px!important;
+    border-radius:30px!important;
+  }
+
+  .special-invite-card:before{
+    inset:7px!important;
+    border-radius:23px!important;
+  }
+
+  .special-ribbon{
+    gap:5px;
+    margin-bottom:16px;
+  }
+
+  .special-ribbon span{
+    height:6px;
+  }
+
+  .special-topline{
+    font-size:8px!important;
+    margin-bottom:18px!important;
+  }
+
+  .special-seal{
+    width:64px!important;
+    height:64px!important;
+    border-radius:21px!important;
+    font-size:24px!important;
+  }
+
+  .special-badge{
+    width:74px;
+    height:74px;
+  }
+
+  .special-badge strong{
+    font-size:25px;
+  }
+
+  .invitation-eyebrow{
+    font-size:9px!important;
+  }
+
+  .special-invite-card h2{
+    font-size:39px!important;
+    margin-bottom:16px!important;
+  }
+
+  .special-lead strong{
+    font-size:18px;
+    line-height:1.55;
+  }
+
+  .special-lead p{
+    font-size:13px;
+    line-height:1.8;
+  }
+
+  .special-value-grid{
+    gap:7px;
+  }
+
+  .special-value{
+    min-height:104px;
+    padding:12px 10px;
+    border-radius:17px;
+  }
+
+  .special-value strong{
+    font-size:12px;
+  }
+
+  .special-value small{
+    font-size:8px;
+  }
+
+  .special-access-note strong{
+    font-size:12px!important;
+  }
+
+  .special-access-note span{
+    font-size:10px!important;
+  }
+
+  .special-login-btn{
+    min-height:56px!important;
+    font-size:13px!important;
+  }
+
+  .special-preview-btn{
+    min-height:52px!important;
+    font-size:12px!important;
+  }
+}
