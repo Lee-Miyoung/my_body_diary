@@ -686,20 +686,70 @@ function isAllowedEmail(email){
   return ALLOWED_EMAILS.includes(String(email||"").trim().toLowerCase());
 }
 
-function openFirstProfileSetup(){
-  els.profileEyebrow.textContent="FIRST RECORD";
-  els.profileTitle.textContent="나의 시작일을 알려주세요";
-  els.profileDescription.textContent="생년월일은 나의 몸의 시간을 계산하기 위해 사용합니다. 처음 한 번만 입력하면 됩니다.";
-  els.profileName.value=currentUser?.displayName||"";
-  els.profileBirthDate.value="";
+
+function setInviteAccessState(state="idle", email=""){
+  if(!els.inviteAccessNote) return;
+
+  els.inviteAccessNote.classList.remove("access-denied","access-ready");
+
+  if(state==="denied"){
+    els.inviteAccessNote.classList.add("access-denied");
+    if(els.inviteAccessIcon) els.inviteAccessIcon.textContent="!";
+    if(els.inviteAccessTitle) els.inviteAccessTitle.textContent="이 계정은 초대 목록에 없습니다.";
+    if(els.inviteAccessDesc){
+      els.inviteAccessDesc.textContent=
+        email
+          ? `${email} 계정은 등록되어 있지 않습니다. 초대받은 Google 계정으로 다시 입장해주세요.`
+          : "초대받은 Google 계정으로 다시 입장해주세요.";
+    }
+    return;
+  }
+
+  if(state==="ready"){
+    els.inviteAccessNote.classList.add("access-ready");
+    if(els.inviteAccessIcon) els.inviteAccessIcon.textContent="✦";
+    if(els.inviteAccessTitle) els.inviteAccessTitle.textContent="초대가 확인되었습니다.";
+    if(els.inviteAccessDesc) els.inviteAccessDesc.textContent="당신만의 비공개 저널로 이동합니다.";
+    return;
+  }
+
+  if(els.inviteAccessIcon) els.inviteAccessIcon.textContent="✦";
+  if(els.inviteAccessTitle) els.inviteAccessTitle.textContent="초대된 사용자만 입장할 수 있습니다.";
+  if(els.inviteAccessDesc) els.inviteAccessDesc.textContent="사전에 등록된 Google 계정으로 입장해주세요.";
+}
+
+function openFirstProfileSetup(existingProfile=null){
+  /*
+   * 첫 로그인 사용자는 일기 화면보다 먼저
+   * 이름/생년월일 확인 화면을 반드시 보게 합니다.
+   *
+   * 이전 버전에서 프로필이 임시 생성된 사용자의 경우에도
+   * onboardingComplete가 없으면 한 번은 직접 확인하도록 합니다.
+   */
+  els.profileEyebrow.textContent="FIRST SETUP";
+  els.profileTitle.textContent="내 몸의 시작일을 알려주세요";
+  els.profileDescription.textContent=
+    "몸의 나이와 기록 날짜를 정확하게 계산하려면 생년월일이 필요합니다. 처음 한 번만 확인하면 다음부터는 자동으로 불러옵니다.";
+
+  els.profileName.value=
+    existingProfile?.name ||
+    currentUser?.displayName ||
+    "";
+
+  // 새 사용자는 생년월일을 직접 선택하게 하고,
+  // 기존에 임시 프로필이 있던 사용자는 현재 값을 보여주되 직접 확인하게 합니다.
+  els.profileBirthDate.value=
+    existingProfile?.birthDate || "";
+
+  els.profileSaveBtn.textContent="내 정보 확인하고 시작하기";
   els.profileMessage.textContent="";
   els.profileCancelBtn.classList.add("hidden");
   els.profileLayer.classList.remove("hidden");
 }
-
 function openProfileEditor(){
   if(!currentUser || !userProfile) return;
 
+  els.profileSaveBtn.textContent="저장하기";
   els.profileEyebrow.textContent="MY PROFILE";
   els.profileTitle.textContent="내 정보 수정";
   els.profileDescription.textContent="이름과 생년월일을 수정할 수 있습니다. 변경된 생년월일을 기준으로 나이가 다시 계산됩니다.";
@@ -730,7 +780,11 @@ async function saveProfile(){
     birthDate,
     email:String(currentUser.email||"").toLowerCase(),
     createdAt:userProfile?.createdAt||Date.now(),
-    updatedAt:Date.now()
+    updatedAt:Date.now(),
+
+    // 첫 로그인 정보 확인을 마쳤다는 표시
+    onboardingComplete:true,
+    onboardingCompletedAt:userProfile?.onboardingCompletedAt||Date.now()
   };
 
   try{
@@ -1412,6 +1466,7 @@ if(!isConfigured){
 
   els.googleLoginBtn.addEventListener("click",async()=>{
     els.loginMessage.textContent="";
+    setInviteAccessState("idle");
     els.googleLoginBtn.disabled=true;
     try{
       await signInWithPopup(auth,provider);
@@ -1441,19 +1496,35 @@ if(!isConfigured){
     const email=String(user.email||"").trim().toLowerCase();
 
     if(!isAllowedEmail(email)){
-      els.loginMessage.textContent="초대된 계정이 아닙니다.";
+      setInviteAccessState("denied",email);
+      els.loginMessage.textContent="초대받은 계정으로 다시 로그인해주세요.";
       await signOut(auth);
       return;
     }
 
+    setInviteAccessState("ready",email);
     els.loginLayer.classList.add("hidden");
     els.logoutBtn.classList.remove("hidden");
     els.profileBtn.classList.remove("hidden");
 
     userProfile=await loadProfile(user.uid);
 
+    /*
+     * 새 사용자 또는 아직 첫 설정을 직접 확인하지 않은 사용자는
+     * 일기 화면을 보여주기 전에 이름/생년월일 설정을 반드시 거칩니다.
+     *
+     * 기존 소유자 계정은 과거 데이터 마이그레이션 때문에 예외 처리합니다.
+     */
     if(!userProfile){
-      openFirstProfileSetup();
+      openFirstProfileSetup(null);
+      return;
+    }
+
+    if(
+      user.uid !== OWNER_UID &&
+      userProfile.onboardingComplete !== true
+    ){
+      openFirstProfileSetup(userProfile);
       return;
     }
 

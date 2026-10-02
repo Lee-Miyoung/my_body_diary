@@ -1609,3 +1609,181 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
     font-size:12px!important;
   }
 }
+
+
+/* =========================================================
+   PRIVATE ACCESS STATUS + ONLY 6 MEMBERS
+   ========================================================= */
+
+/* ONLY 6 MEMBERS — special private badge */
+.special-badge{
+  position:relative;
+  isolation:isolate;
+  overflow:visible!important;
+  animation:privateBadgeFloat 2.8s ease-in-out infinite;
+}
+
+.special-badge::before,
+.special-badge::after{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:-1;
+}
+
+.special-badge::before{
+  border:2px solid rgba(225,118,153,.48);
+  box-shadow:
+    0 0 0 5px rgba(167,139,212,.10),
+    0 0 26px rgba(230,137,160,.34);
+  animation:privateBadgePulse 1.65s ease-in-out infinite;
+}
+
+.special-badge::after{
+  inset:-14px;
+  border:1px solid rgba(127,194,165,.34);
+  animation:privateBadgeHalo 1.65s ease-out infinite;
+}
+
+.special-badge strong{
+  position:relative;
+  font-size:31px!important;
+  background:linear-gradient(135deg,#d96584,#9b79c7,#548f78);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent!important;
+  animation:privateSixBlink 1.35s ease-in-out infinite;
+}
+
+.special-badge .badge-private{
+  position:absolute;
+  top:-15px;
+  left:50%;
+  transform:translateX(-50%);
+  min-width:72px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#2f2826;
+  color:#fff!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  letter-spacing:.20em!important;
+  box-shadow:0 7px 16px rgba(43,35,32,.18);
+}
+
+@keyframes privateBadgeFloat{
+  0%,100%{transform:rotate(4deg) translateY(0)}
+  50%{transform:rotate(1deg) translateY(-4px)}
+}
+
+@keyframes privateBadgePulse{
+  0%,100%{opacity:.48;transform:scale(.96)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+
+@keyframes privateBadgeHalo{
+  0%{opacity:.75;transform:scale(.82)}
+  70%,100%{opacity:0;transform:scale(1.24)}
+}
+
+@keyframes privateSixBlink{
+  0%,100%{filter:brightness(.88);transform:scale(1)}
+  45%{filter:brightness(1.35);transform:scale(1.09)}
+  55%{filter:brightness(1.6);transform:scale(1.11)}
+}
+
+/* Default private access note */
+.special-access-note{
+  transition:.28s ease!important;
+}
+
+/* Unauthorized account: show the warning in the CENTER, not tiny below */
+.special-access-note.access-denied{
+  border:1.5px solid rgba(217,91,108,.70)!important;
+  background:
+    linear-gradient(135deg,#fff0f2 0%,#fde5ea 50%,#f3e8fb 100%)!important;
+  box-shadow:
+    0 12px 28px rgba(177,74,93,.12),
+    0 0 0 5px rgba(226,111,134,.055)!important;
+  animation:deniedCardIn .32s ease-out both;
+}
+
+.special-access-note.access-denied .invite-lock{
+  background:linear-gradient(145deg,#d95f76,#a875b9)!important;
+  color:#fff!important;
+  font-size:20px!important;
+  font-weight:900!important;
+  box-shadow:0 9px 20px rgba(183,80,105,.20)!important;
+}
+
+.special-access-note.access-denied strong{
+  color:#a33f54!important;
+  font-size:14px!important;
+  font-weight:900!important;
+}
+
+.special-access-note.access-denied span{
+  color:#765e62!important;
+  font-size:11px!important;
+  font-weight:600!important;
+}
+
+/* Allowed state flashes briefly before entering */
+.special-access-note.access-ready{
+  border-color:rgba(91,160,123,.65)!important;
+  background:linear-gradient(135deg,#e1f4e9,#eef8f3,#f4effb)!important;
+}
+
+.special-access-note.access-ready strong{
+  color:#3f7758!important;
+}
+
+@keyframes deniedCardIn{
+  from{opacity:0;transform:translateY(-5px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Bigger private statement */
+.special-topline .invite-status{
+  padding:5px 9px;
+  border-radius:999px;
+  background:#2e2926;
+  color:#fff;
+  letter-spacing:.17em;
+}
+
+@media(max-width:650px){
+  .special-badge{
+    margin-top:8px;
+  }
+
+  .special-badge strong{
+    font-size:28px!important;
+  }
+
+  .special-badge .badge-private{
+    top:-13px;
+    min-width:66px;
+    font-size:6.5px!important;
+  }
+
+  .special-access-note.access-denied strong{
+    font-size:13px!important;
+  }
+
+  .special-access-note.access-denied span{
+    font-size:10.5px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .special-badge,
+  .special-badge::before,
+  .special-badge::after,
+  .special-badge strong,
+  .special-access-note.access-denied{
+    animation:none!important;
+  }
+}
