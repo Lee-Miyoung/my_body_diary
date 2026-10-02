@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#f8f1eb" />
   <title>몸의 일기</title>
-  <link rel="stylesheet" href="./style.css?v=20261002-compat1" />
+  <link rel="stylesheet" href="./style.css?v=20261002-birthselect1" />
 </head>
 <body>
   <div class="ambient a1"></div>
@@ -396,10 +396,25 @@
         <input id="profileName" type="text" maxlength="30" placeholder="예: 미영" />
       </label>
 
-      <label class="profile-field">
+      <div class="profile-field">
         <span>생년월일</span>
-        <input id="profileBirthDate" type="date" />
-      </label>
+        <div class="birth-select-row" aria-label="생년월일 선택">
+          <label class="birth-select-box">
+            <select id="profileBirthYear" aria-label="출생연도"></select>
+            <small>년</small>
+          </label>
+          <label class="birth-select-box">
+            <select id="profileBirthMonth" aria-label="출생월"></select>
+            <small>월</small>
+          </label>
+          <label class="birth-select-box">
+            <select id="profileBirthDay" aria-label="출생일"></select>
+            <small>일</small>
+          </label>
+        </div>
+        <input id="profileBirthDate" type="hidden" />
+        <p class="birth-select-help">연도 · 월 · 일을 각각 선택해주세요.</p>
+      </div>
 
       <button id="profileSaveBtn" class="primary-btn wide" type="button">저장하기</button>
       <button id="profileCancelBtn" class="secondary-btn wide hidden" type="button">취소</button>
@@ -584,10 +599,10 @@
     });
   </script>
 
-  <script src="./firebase-config.js?v=20261002-compat1"></script>
+  <script src="./firebase-config.js?v=20261002-birthselect1"></script>
   <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js"></script>
-  <script src="./app.js?v=20261002-compat1"></script>
+  <script src="./app.js?v=20261002-birthselect1"></script>
 </body>
 </html>

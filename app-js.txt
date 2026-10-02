@@ -76,7 +76,7 @@ const els = {
   backTodayBtn:$("backTodayBtn"), deleteEntryBtn:$("deleteEntryBtn"),
   recentEntries:$("recentEntries"), archiveDate:$("archiveDate"), loadDateBtn:$("loadDateBtn"),
   calendarTitle:$("calendarTitle"), calendarGrid:$("calendarGrid"), calendarPrevBtn:$("calendarPrevBtn"), calendarNextBtn:$("calendarNextBtn"),
-  profileName:$("profileName"), profileBirthDate:$("profileBirthDate"),
+  profileName:$("profileName"), profileBirthDate:$("profileBirthDate"), profileBirthYear:$("profileBirthYear"), profileBirthMonth:$("profileBirthMonth"), profileBirthDay:$("profileBirthDay"),
   profileSaveBtn:$("profileSaveBtn"), profileCancelBtn:$("profileCancelBtn"),
   profileTitle:$("profileTitle"), profileDescription:$("profileDescription"), profileEyebrow:$("profileEyebrow"),
   profileMessage:$("profileMessage"),
@@ -576,7 +576,7 @@ function payload(){
 }
 function entryRef(uid,dateKey){ return ref(db,`users/${uid}/diary/${dateKey}`); }
 
-async async function saveCurrentEntryEncrypted(silent=false){
+async function saveCurrentEntryEncrypted(silent=false){
   if(!currentUser || !userProfile || !vaultKey) throw new Error("개인 기록 잠금이 열리지 않았습니다.");
   const target=entryRef(currentUser.uid,selectedDateKey);
   const old=await get(target);
@@ -610,7 +610,7 @@ async function saveEntry(){
   }finally{ els.saveBtn.disabled=false; }
 }
 
-async async function loadEntry(dateKey){
+async function loadEntry(dateKey){
   if(!currentUser || !userProfile || !vaultKey) return;
   const snap=await get(entryRef(currentUser.uid,dateKey));
   selectedDateKey=dateKey;
@@ -788,7 +788,7 @@ async function deleteCurrentEntry(){
   }
 }
 
-async async function loadRecentEntries(){
+async function loadRecentEntries(){
   if(!currentUser || !userProfile || !vaultKey) return;
   els.recentEntries.innerHTML='<p class="muted">암호화된 기록을 여는 중…</p>';
   try{
@@ -831,7 +831,7 @@ async async function loadRecentEntries(){
   }catch(err){ console.error(err); els.recentEntries.innerHTML='<p class="muted">지난 기록을 열지 못했습니다.</p>'; }
 }
 
-async async function buildGalleryItems(){
+async function buildGalleryItems(){
   if(!currentUser || !vaultKey) return [];
   const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
   const items=[];
@@ -876,7 +876,7 @@ function moveGallery(delta){
   showGalleryItem();
 }
 
-async async function inferLegacyProfile(uid){
+async function inferLegacyProfile(uid){
   if(uid!==OWNER_UID || !vaultKey) return null;
   try{
     const snap=await get(ref(db,`users/${uid}/diary`));
@@ -893,7 +893,7 @@ async async function inferLegacyProfile(uid){
   return null;
 }
 
-async async function loadProfile(uid){
+async function loadProfile(uid){
   if(!vaultKey) throw new Error("개인 암호 잠금이 열리지 않았습니다.");
   const profileRef=ref(db,`users/${uid}/profile`);
   const snap=await get(profileRef);
@@ -942,6 +942,60 @@ function setInviteAccessState(state="idle", email=""){
   if(els.inviteAccessDesc) els.inviteAccessDesc.textContent="사전에 등록된 Google 계정으로 입장해주세요.";
 }
 
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+
+function fillBirthSelects(){
+  if(!els.profileBirthYear || !els.profileBirthMonth || !els.profileBirthDay) return;
+  const nowYear=new Date().getFullYear();
+
+  els.profileBirthYear.innerHTML='<option value="">연도</option>';
+  for(let y=nowYear;y>=1920;y--){
+    const o=document.createElement("option");
+    o.value=String(y);
+    o.textContent=`${y}년`;
+    els.profileBirthYear.appendChild(o);
+  }
+
+  els.profileBirthMonth.innerHTML='<option value="">월</option>';
+  for(let m=1;m<=12;m++){
+    const o=document.createElement("option");
+    o.value=pad2(m);
+    o.textContent=`${m}월`;
+    els.profileBirthMonth.appendChild(o);
+  }
+
+  els.profileBirthDay.innerHTML='<option value="">일</option>';
+  for(let d=1;d<=31;d++){
+    const o=document.createElement("option");
+    o.value=pad2(d);
+    o.textContent=`${d}일`;
+    els.profileBirthDay.appendChild(o);
+  }
+}
+
+function setBirthSelectValue(value=""){
+  if(!els.profileBirthYear) return;
+  const m=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  els.profileBirthYear.value=m?m[1]:"";
+  els.profileBirthMonth.value=m?m[2]:"";
+  els.profileBirthDay.value=m?m[3]:"";
+  syncBirthDateFromSelects();
+}
+
+function syncBirthDateFromSelects(){
+  if(!els.profileBirthDate || !els.profileBirthYear) return;
+  const y=els.profileBirthYear.value;
+  const m=els.profileBirthMonth.value;
+  const d=els.profileBirthDay.value;
+  if(!y || !m || !d){
+    els.profileBirthDate.value="";
+    return;
+  }
+  const candidate=`${y}-${m}-${d}`;
+  els.profileBirthDate.value=parseBirthDate(candidate)?candidate:"";
+}
+
 function openFirstProfileSetup(existingProfile=null){
   /*
    * 첫 로그인 사용자는 일기 화면보다 먼저
@@ -962,8 +1016,7 @@ function openFirstProfileSetup(existingProfile=null){
 
   // 새 사용자는 생년월일을 직접 선택하게 하고,
   // 기존에 임시 프로필이 있던 사용자는 현재 값을 보여주되 직접 확인하게 합니다.
-  els.profileBirthDate.value=
-    existingProfile?.birthDate || "";
+  setBirthSelectValue(existingProfile?.birthDate || "");
 
   els.profileSaveBtn.textContent="내 정보 확인하고 시작하기";
   els.profileMessage.textContent="";
@@ -978,15 +1031,16 @@ function openProfileEditor(){
   els.profileTitle.textContent="내 정보 수정";
   els.profileDescription.textContent="이름과 생년월일을 수정할 수 있습니다. 변경된 생년월일을 기준으로 나이가 다시 계산됩니다.";
   els.profileName.value=userProfile.name||"";
-  els.profileBirthDate.value=userProfile.birthDate||"";
+  setBirthSelectValue(userProfile.birthDate||"");
   els.profileMessage.textContent="";
   els.profileCancelBtn.classList.remove("hidden");
   els.profileLayer.classList.remove("hidden");
 }
 
-async async function saveProfile(){
+async function saveProfile(){
   if(!currentUser || !vaultKey) return;
   const name=clean(els.profileName.value,30);
+  syncBirthDateFromSelects();
   const birthDate=els.profileBirthDate.value;
   if(!name){ els.profileMessage.textContent="이름 또는 별칭을 입력해주세요."; return; }
   if(!parseBirthDate(birthDate)){ els.profileMessage.textContent="생년월일을 정확히 선택해주세요."; return; }
@@ -1606,6 +1660,11 @@ async function beginPrivateSecurity(){
 }
 
 function setupEvents(){
+  fillBirthSelects();
+  [els.profileBirthYear,els.profileBirthMonth,els.profileBirthDay].forEach(el=>{
+    el?.addEventListener("change",syncBirthDateFromSelects);
+  });
+
   els.condition.addEventListener("input",()=>{
     els.conditionOutput.value=`${els.condition.value} · ${conditionLabel(els.condition.value)}`;
     setSaveState("변경 있음");
