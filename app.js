@@ -576,7 +576,7 @@ function payload(){
 }
 function entryRef(uid,dateKey){ return ref(db,`users/${uid}/diary/${dateKey}`); }
 
-async async function saveCurrentEntryEncrypted(silent=false){
+async function saveCurrentEntryEncrypted(silent=false){
   if(!currentUser || !userProfile || !vaultKey) throw new Error("개인 기록 잠금이 열리지 않았습니다.");
   const target=entryRef(currentUser.uid,selectedDateKey);
   const old=await get(target);
@@ -610,7 +610,7 @@ async function saveEntry(){
   }finally{ els.saveBtn.disabled=false; }
 }
 
-async async function loadEntry(dateKey){
+async function loadEntry(dateKey){
   if(!currentUser || !userProfile || !vaultKey) return;
   const snap=await get(entryRef(currentUser.uid,dateKey));
   selectedDateKey=dateKey;
@@ -788,7 +788,7 @@ async function deleteCurrentEntry(){
   }
 }
 
-async async function loadRecentEntries(){
+async function loadRecentEntries(){
   if(!currentUser || !userProfile || !vaultKey) return;
   els.recentEntries.innerHTML='<p class="muted">암호화된 기록을 여는 중…</p>';
   try{
@@ -831,7 +831,7 @@ async async function loadRecentEntries(){
   }catch(err){ console.error(err); els.recentEntries.innerHTML='<p class="muted">지난 기록을 열지 못했습니다.</p>'; }
 }
 
-async async function buildGalleryItems(){
+async function buildGalleryItems(){
   if(!currentUser || !vaultKey) return [];
   const snap=await get(ref(db,`users/${currentUser.uid}/diary`));
   const items=[];
@@ -876,7 +876,7 @@ function moveGallery(delta){
   showGalleryItem();
 }
 
-async async function inferLegacyProfile(uid){
+async function inferLegacyProfile(uid){
   if(uid!==OWNER_UID || !vaultKey) return null;
   try{
     const snap=await get(ref(db,`users/${uid}/diary`));
@@ -893,7 +893,7 @@ async async function inferLegacyProfile(uid){
   return null;
 }
 
-async async function loadProfile(uid){
+async function loadProfile(uid){
   if(!vaultKey) throw new Error("개인 암호 잠금이 열리지 않았습니다.");
   const profileRef=ref(db,`users/${uid}/profile`);
   const snap=await get(profileRef);
@@ -984,7 +984,7 @@ function openProfileEditor(){
   els.profileLayer.classList.remove("hidden");
 }
 
-async async function saveProfile(){
+async function saveProfile(){
   if(!currentUser || !vaultKey) return;
   const name=clean(els.profileName.value,30);
   const birthDate=els.profileBirthDate.value;
