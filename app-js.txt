@@ -1,11 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
   getRedirectResult, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getDatabase, ref, set, get, remove, query, orderByKey, limitToLast, startAt, endAt
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
 const TZ = "Asia/Seoul";
 const OWNER_UID = "yBts8Gp1QjX7rU6P7auwsU524xp1";
@@ -1695,6 +1695,7 @@ function setupEvents(){
   });
 }
 setupEvents();
+window.BODY_DIARY_APP_READY=true;
 
 if(!isConfigured){
   els.loginLayer.classList.add("hidden");
@@ -1723,47 +1724,27 @@ if(!isConfigured){
   });
 
   els.googleLoginBtn.addEventListener("click",async()=>{
-    els.loginMessage.textContent="";
+    els.loginMessage.textContent="Google 계정 선택창을 여는 중…";
     setInviteAccessState("idle");
     els.googleLoginBtn.disabled=true;
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
     try{
-      // 모바일에서는 팝업보다 redirect 방식이 훨씬 안정적입니다.
-      if(isMobile){
-        await signInWithRedirect(auth,provider);
-        return;
-      }
-
       await signInWithPopup(auth,provider);
-
+      els.loginMessage.textContent="";
     }catch(err){
-      console.error("Google login error:", err);
-
-      // 팝업 관련 오류는 redirect로 한 번 더 시도
-      if([
-        "auth/popup-blocked",
-        "auth/popup-closed-by-user",
-        "auth/cancelled-popup-request",
-        "auth/web-storage-unsupported"
-      ].includes(err.code)){
-        try{
-          await signInWithRedirect(auth,provider);
-          return;
-        }catch(e){
-          console.error("Google redirect error:", e);
-          err=e;
-        }
-      }
+      console.error("Google login error:",err);
 
       let msg="Google 로그인에 실패했습니다.";
-      if(err?.code==="auth/unauthorized-domain"){
-        msg="현재 사이트 주소가 Firebase 승인 도메인에 등록되지 않았습니다.";
+      if(err?.code==="auth/popup-blocked"){
+        msg="브라우저가 Google 로그인 팝업을 차단했습니다. 주소창의 팝업 허용을 켠 뒤 다시 눌러주세요.";
+      }else if(err?.code==="auth/popup-closed-by-user"){
+        msg="Google 계정 선택창이 닫혔습니다. 다시 눌러주세요.";
+      }else if(err?.code==="auth/unauthorized-domain"){
+        msg="Firebase 승인 도메인에 bodymemory.github.io가 등록되어 있지 않습니다.";
       }else if(err?.code==="auth/network-request-failed"){
-        msg="네트워크 연결 문제로 Google 로그인을 시작하지 못했습니다.";
+        msg="네트워크 문제로 Google 로그인을 시작하지 못했습니다.";
       }else if(err?.code==="auth/operation-not-allowed"){
-        msg="Firebase에서 Google 로그인이 활성화되어 있지 않습니다.";
+        msg="Firebase Authentication에서 Google 로그인이 활성화되어 있지 않습니다.";
       }
 
       els.loginMessage.textContent=msg;
