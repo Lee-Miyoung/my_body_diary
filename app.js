@@ -1,11 +1,43 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
-  getRedirectResult, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import {
-  getDatabase, ref, set, get, remove, query, orderByKey, limitToLast, startAt, endAt
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+/* Firebase compat adapter: GitHub Pages/iPhone friendly */
+window.BODY_DIARY_APP_READY = false;
+
+if (!window.firebase) {
+  throw new Error("Firebase SDK를 불러오지 못했습니다.");
+}
+
+const initializeApp = cfg => {
+  if (firebase.apps && firebase.apps.length) return firebase.app();
+  return firebase.initializeApp(cfg);
+};
+const getAuth = () => firebase.auth();
+const GoogleAuthProvider = firebase.auth.GoogleAuthProvider;
+const signInWithPopup = (auth, provider) => auth.signInWithPopup(provider);
+const signInWithRedirect = (auth, provider) => auth.signInWithRedirect(provider);
+const getRedirectResult = auth => auth.getRedirectResult();
+const signOut = auth => auth.signOut();
+const onAuthStateChanged = (auth, cb) => auth.onAuthStateChanged(cb);
+
+const getDatabase = () => firebase.database();
+const ref = (db, path) => db.ref(path);
+const set = (r, value) => r.set(value);
+const get = r => r.once("value");
+const remove = r => r.remove();
+const orderByKey = () => ({kind:"orderByKey"});
+const limitToLast = n => ({kind:"limitToLast", value:n});
+const startAt = v => ({kind:"startAt", value:v});
+const endAt = v => ({kind:"endAt", value:v});
+const query = (r, ...ops) => {
+  let q = r;
+  for (const op of ops) {
+    if (!op) continue;
+    if (op.kind === "orderByKey") q = q.orderByKey();
+    else if (op.kind === "limitToLast") q = q.limitToLast(op.value);
+    else if (op.kind === "startAt") q = q.startAt(op.value);
+    else if (op.kind === "endAt") q = q.endAt(op.value);
+  }
+  return q;
+};
+
 
 const TZ = "Asia/Seoul";
 const OWNER_UID = "yBts8Gp1QjX7rU6P7auwsU524xp1";
@@ -1694,8 +1726,16 @@ function setupEvents(){
     if(e.key==="ArrowRight") moveGallery(1);
   });
 }
-setupEvents();
 window.BODY_DIARY_APP_READY=true;
+try{
+  setupEvents();
+}catch(err){
+  window.BODY_DIARY_APP_READY=false;
+  console.error("App setup error:",err);
+  const m=document.getElementById("loginMessage");
+  if(m) m.textContent="앱 초기화 오류: "+(err?.message||String(err));
+  throw err;
+}
 
 if(!isConfigured){
   els.loginLayer.classList.add("hidden");
