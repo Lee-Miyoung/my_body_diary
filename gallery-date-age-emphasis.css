@@ -1,0 +1,52 @@
+/* 사진 전체보기 상단 날짜/나이 강조 */
+.gallery-meta{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  text-align:center!important;
+}
+.gallery-meta strong{
+  display:block!important;
+  font-size:18px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  letter-spacing:.02em!important;
+  color:#fff!important;
+  text-shadow:0 2px 8px rgba(0,0,0,.32)!important;
+}
+.gallery-meta span{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:28px!important;
+  padding:5px 10px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.10)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  backdrop-filter:blur(8px)!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+  font-weight:700!important;
+  letter-spacing:-.01em!important;
+  color:rgba(255,255,255,.90)!important;
+}
+@media(max-width:650px){
+  .gallery-top{
+    grid-template-columns:74px 1fr 54px!important;
+    padding:14px 14px!important;
+  }
+  .gallery-meta{gap:4px!important}
+  .gallery-meta strong{font-size:17px!important}
+  .gallery-meta span{
+    min-height:26px!important;
+    padding:4px 9px!important;
+    font-size:11px!important;
+  }
+  #galleryCounter{
+    font-size:12px!important;
+    font-weight:700!important;
+    color:rgba(255,255,255,.78)!important;
+  }
+}
