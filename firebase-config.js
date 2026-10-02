@@ -8,8 +8,7 @@ window.BODY_DIARY_FIREBASE_CONFIG = {
   appId: "1:524921255290:web:e650404aa589a5467b12c3"
 };
 
-// 실제 사용할 Google 계정만 넣으세요.
-// 네이버 주소라도 Google 계정으로 등록되어 있으면 정상 사용 가능합니다.
+// 초대된 Google 계정만 추가하세요.
 window.BODY_DIARY_ALLOWED_EMAILS = [
   "song4mi12@gmail.com",
   "wonmigood@naver.com",

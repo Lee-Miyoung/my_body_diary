@@ -2,19 +2,21 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "users": {
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid && (auth.token.email === 'song4mi12@gmail.com' || auth.token.email === 'wonmigood@naver.com')",
-        ".write": "auth != null && auth.uid === $uid && (auth.token.email === 'song4mi12@gmail.com' || auth.token.email === 'wonmigood@naver.com')",
-
-        "profile": {
-          ".validate": "newData.hasChildren(['name','birthDate','email']) && newData.child('email').val() === auth.token.email"
+        ".read": "auth != null && auth.uid === $uid",
+        "crypto": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['version','passwordSalt','passwordWrapped','recoveryWrapped','recoveryHash'])"
         },
-
+        "profile": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['email','encrypted']) && newData.child('email').val() === auth.token.email"
+        },
         "diary": {
           "$date": {
-            ".validate": "newData.hasChildren(['date','birthDate']) && newData.child('date').val() === $date"
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['encrypted','updatedAt']) && $date.matches(/^\\d{4}-\\d{2}-\\d{2}$/))"
           }
         }
       }

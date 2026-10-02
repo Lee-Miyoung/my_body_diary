@@ -129,7 +129,7 @@
         <div class="privacy-icon">🔐</div>
         <div>
           <strong>나만 보는 개인 기록</strong>
-          <span>로그인한 본인의 기록만 읽고 쓸 수 있도록 분리되어 있습니다.</span>
+          <span>일기와 사진은 기기에서 암호화된 뒤 저장됩니다. 운영자도 내용은 볼 수 없습니다.</span>
         </div>
       </section>
 
@@ -405,6 +405,129 @@
       <button id="profileCancelBtn" class="secondary-btn wide hidden" type="button">취소</button>
 
       <p id="profileMessage" class="form-message"></p>
+    </div>
+  </div>
+
+  <!-- 개인 암호 최초 설정 -->
+  <div id="securitySetupLayer" class="overlay-layer hidden security-layer">
+    <div class="security-card">
+      <div class="security-mark">✦</div>
+      <p class="eyebrow purple">PRIVATE ENCRYPTION</p>
+      <h2>나만의 개인 암호 만들기</h2>
+      <p class="security-copy">
+        이 암호로 일기와 사진이 <strong>내 기기에서 먼저 암호화</strong>된 뒤 저장됩니다.<br>
+        운영자도 Firebase 콘솔에서 내용을 읽을 수 없습니다.
+      </p>
+
+      <label class="security-field">
+        <span>개인 암호</span>
+        <input id="securityPassword" type="password" autocomplete="new-password" minlength="8" placeholder="8자 이상" />
+      </label>
+      <label class="security-field">
+        <span>개인 암호 확인</span>
+        <input id="securityPasswordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="한 번 더 입력" />
+      </label>
+
+      <label class="security-check">
+        <input id="rememberDeviceCheck" type="checkbox" checked />
+        <span>이 기기에서는 다음부터 자동으로 열기</span>
+      </label>
+
+      <div class="security-warning">
+        <strong>중요</strong>
+        <span>개인 암호는 서버에 저장되지 않습니다. 다음 단계에서 복구키를 꼭 보관해주세요.</span>
+      </div>
+
+      <button id="securitySetupBtn" class="primary-btn wide" type="button">개인 암호 만들고 보호 시작</button>
+      <p id="securitySetupMessage" class="form-message"></p>
+    </div>
+  </div>
+
+  <!-- 개인 암호 잠금 해제 -->
+  <div id="unlockLayer" class="overlay-layer hidden security-layer">
+    <div class="security-card">
+      <div class="security-mark lock-mark">🔐</div>
+      <p class="eyebrow purple">PRIVATE JOURNAL LOCK</p>
+      <h2>내 몸의 일기 열기</h2>
+      <p class="security-copy">Google 로그인은 확인되었습니다.<br>이제 본인만 아는 개인 암호로 기록을 엽니다.</p>
+
+      <label class="security-field">
+        <span>개인 암호</span>
+        <input id="unlockPassword" type="password" autocomplete="current-password" placeholder="개인 암호 입력" />
+      </label>
+
+      <label class="security-check">
+        <input id="unlockRememberCheck" type="checkbox" checked />
+        <span>이 기기에서는 다음부터 자동으로 열기</span>
+      </label>
+
+      <button id="unlockBtn" class="primary-btn wide" type="button">내 기록 열기</button>
+      <button id="forgotPasswordBtn" class="secondary-btn wide" type="button">암호를 잊으셨나요?</button>
+      <p id="unlockMessage" class="form-message"></p>
+    </div>
+  </div>
+
+  <!-- 복구키 표시 -->
+  <div id="recoveryKeyLayer" class="overlay-layer hidden security-layer">
+    <div class="security-card recovery-card">
+      <div class="security-mark recovery-mark">⌁</div>
+      <p class="eyebrow purple">RECOVERY KEY</p>
+      <h2>복구키를 꼭 보관해주세요</h2>
+      <p class="security-copy">
+        개인 암호를 잊었을 때 이 키로 기존 일기를 다시 열 수 있습니다.<br>
+        <strong>운영자에게도 이 키는 저장되지 않습니다.</strong>
+      </p>
+
+      <div class="recovery-code-box">
+        <code id="recoveryCodeText"></code>
+      </div>
+
+      <div class="security-actions">
+        <button id="copyRecoveryBtn" class="secondary-btn" type="button">복구키 복사</button>
+        <button id="emailRecoveryBtn" class="secondary-btn" type="button">등록 이메일로 보관</button>
+      </div>
+
+      <p class="recovery-email-note">
+        ‘등록 이메일로 보관’을 누르면 내 메일 앱이 열립니다. <strong>내 이메일로 직접 보내 보관</strong>하므로 앱 운영자는 복구키를 볼 수 없습니다.
+      </p>
+
+      <label class="security-check confirm-check">
+        <input id="recoverySavedCheck" type="checkbox" />
+        <span>복구키를 복사하거나 이메일에 보관했습니다.</span>
+      </label>
+
+      <button id="recoveryContinueBtn" class="primary-btn wide" type="button">확인하고 몸의 일기 시작</button>
+      <p id="recoveryMessage" class="form-message"></p>
+    </div>
+  </div>
+
+  <!-- 암호 분실 복구 -->
+  <div id="recoveryLayer" class="overlay-layer hidden security-layer">
+    <div class="security-card">
+      <div class="security-mark recovery-mark">⌁</div>
+      <p class="eyebrow purple">ACCOUNT RECOVERY</p>
+      <h2>복구키로 다시 열기</h2>
+      <p class="security-copy">
+        처음 가입할 때 이메일이나 메모에 보관한 복구키를 입력해주세요.<br>
+        복구 후 새로운 개인 암호를 만들 수 있습니다.
+      </p>
+
+      <label class="security-field">
+        <span>복구키</span>
+        <input id="recoveryCodeInput" type="text" autocomplete="off" placeholder="BODY-...." />
+      </label>
+      <label class="security-field">
+        <span>새 개인 암호</span>
+        <input id="recoveryNewPassword" type="password" autocomplete="new-password" minlength="8" placeholder="8자 이상" />
+      </label>
+      <label class="security-field">
+        <span>새 개인 암호 확인</span>
+        <input id="recoveryNewPasswordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="한 번 더 입력" />
+      </label>
+
+      <button id="recoverBtn" class="primary-btn wide" type="button">복구하고 새 암호 저장</button>
+      <button id="recoveryBackBtn" class="secondary-btn wide" type="button">암호 입력으로 돌아가기</button>
+      <p id="recoveryMessage2" class="form-message"></p>
     </div>
   </div>
 
