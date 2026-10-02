@@ -1788,92 +1788,145 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   }
 }
 
-/* ===== 가독성 강화: 탭/버튼/작은 안내글씨 확대 ===== */
+
+/* ===== 01 / 02 / 03 카드 정렬 및 강조 최종 ===== */
+.special-value-grid{
+  align-items:stretch!important;
+}
+
+.special-value{
+  min-height:132px!important;
+  height:132px!important;
+  padding:15px 15px 14px!important;
+  display:grid!important;
+  grid-template-rows:22px 1fr auto!important;
+  align-items:start!important;
+}
+
+.special-value>span{
+  margin:0!important;
+  align-self:start!important;
+  font-size:10px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:.16em!important;
+  color:#9b8179!important;
+}
+
 .special-value strong{
-  font-size:17px!important;
-  line-height:1.35!important;
+  align-self:end!important;
+  margin:0 0 7px!important;
+  font-size:18px!important;
+  line-height:1.05!important;
+  font-weight:850!important;
+  letter-spacing:-.03em!important;
+  color:#332c29!important;
 }
 
 .special-value small{
+  display:block!important;
+  min-height:34px!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+  font-weight:650!important;
+  color:#776a63!important;
+  word-break:keep-all!important;
+}
+
+.sv-rose{
+  background:linear-gradient(145deg,#f8dce4 0%,#fff7f5 100%)!important;
+  border-color:#efcbd6!important;
+}
+.sv-mint{
+  background:linear-gradient(145deg,#d9efe4 0%,#f8fbf7 100%)!important;
+  border-color:#c8e1d4!important;
+}
+.sv-violet{
+  background:linear-gradient(145deg,#e7e0f6 0%,#faf7fd 100%)!important;
+  border-color:#d6cbea!important;
+}
+
+.special-lead strong{
+  font-size:22px!important;
+  line-height:1.5!important;
+  font-weight:700!important;
+  color:#2f2825!important;
+}
+
+.special-lead strong::after{
+  content:"";
+  display:block;
+  width:58px;
+  height:4px;
+  margin-top:12px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#e989a0,#f2a071,#dec457,#7fc2a5,#a78bd4,#7fb8d7);
+}
+
+.special-access-note strong{
+  font-size:15px!important;
+  font-weight:900!important;
+  color:#3f6e58!important;
+}
+
+.special-access-note span{
   font-size:12px!important;
   line-height:1.55!important;
   font-weight:600!important;
 }
 
-.special-value>span{
-  font-size:10px!important;
-  font-weight:900!important;
-}
-
-.special-access-note strong{
-  font-size:15px!important;
-  line-height:1.45!important;
-}
-
-.special-access-note span{
-  font-size:12.5px!important;
-  line-height:1.6!important;
-}
-
 .special-login-btn{
+  min-height:60px!important;
   font-size:15px!important;
-  font-weight:850!important;
+  font-weight:900!important;
+  letter-spacing:-.02em!important;
+  border:1.5px solid #d5c3bd!important;
+  box-shadow:0 12px 26px rgba(86,62,52,.10)!important;
 }
 
 .special-preview-btn{
-  font-size:14px!important;
+  min-height:54px!important;
+  font-size:13px!important;
   font-weight:800!important;
 }
 
 .special-footnote{
-  font-size:11.5px!important;
-  line-height:1.55!important;
-}
-
-.special-topline{
-  font-size:10px!important;
-}
-
-.special-badge span,
-.special-badge small{
-  font-size:8.5px!important;
+  font-size:11px!important;
+  line-height:1.5!important;
+  font-weight:750!important;
+  color:#8e7972!important;
 }
 
 @media(max-width:650px){
+  .special-value-grid{gap:8px!important}
+
   .special-value{
-    min-height:118px!important;
-    padding:15px 12px!important;
+    min-height:126px!important;
+    height:126px!important;
+    padding:14px 12px 13px!important;
+    grid-template-rows:20px 1fr auto!important;
   }
 
+  .special-value>span{font-size:9px!important}
+
   .special-value strong{
-    font-size:16px!important;
+    font-size:17px!important;
+    margin-bottom:6px!important;
   }
 
   .special-value small{
-    font-size:11.5px!important;
+    min-height:31px!important;
+    font-size:10.5px!important;
+    line-height:1.4!important;
   }
 
-  .special-value>span{
-    font-size:9.5px!important;
-  }
-
-  .special-access-note strong{
-    font-size:14px!important;
-  }
-
-  .special-access-note span{
-    font-size:12px!important;
-  }
+  .special-lead strong{font-size:20px!important}
+  .special-access-note strong{font-size:14px!important}
+  .special-access-note span{font-size:11px!important}
 
   .special-login-btn{
+    min-height:58px!important;
     font-size:14px!important;
-  }
-
-  .special-preview-btn{
-    font-size:13.5px!important;
-  }
-
-  .special-footnote{
-    font-size:11px!important;
   }
 }
