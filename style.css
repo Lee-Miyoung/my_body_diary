@@ -1898,3 +1898,18 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .security-actions{grid-template-columns:1fr}
   .recovery-code-box code{font-size:12px;letter-spacing:.055em}
 }
+
+/* Login error/status visibility */
+#loginMessage:not(:empty){
+  display:block;
+  margin:14px 0 0;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff0f2;
+  border:1px solid rgba(190,72,96,.28);
+  color:#9f3e53;
+  font-size:13px;
+  line-height:1.5;
+  font-weight:800;
+  text-align:center;
+}

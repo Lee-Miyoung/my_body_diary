@@ -35,6 +35,8 @@ const els = {
   saveBtn:$("saveBtn"), clearBtn:$("clearBtn"), pdfBtn:$("pdfBtn"), galleryBtn:$("galleryBtn"),
   loginLayer:$("loginLayer"), setupLayer:$("setupLayer"), profileLayer:$("profileLayer"),
   googleLoginBtn:$("googleLoginBtn"), loginMessage:$("loginMessage"),
+  inviteAccessNote:$("inviteAccessNote"), inviteAccessIcon:$("inviteAccessIcon"),
+  inviteAccessTitle:$("inviteAccessTitle"), inviteAccessDesc:$("inviteAccessDesc"),
   previewBtn:$("previewBtn"), previewBanner:$("previewBanner"), previewStory:$("previewStory"), previewCTA:$("previewCTA"), previewStartBtn:$("previewStartBtn"), exitPreviewBtn:$("exitPreviewBtn"),
   logoutBtn:$("logoutBtn"), profileBtn:$("profileBtn"), saveState:$("saveState"),
   recordContext:$("recordContext"), recordContextLabel:$("recordContextLabel"), recordContextDate:$("recordContextDate"),
@@ -1706,22 +1708,71 @@ if(!isConfigured){
   provider.setCustomParameters({prompt:"select_account"});
 
   getRedirectResult(auth).catch(err=>{
-    console.error(err);
-    els.loginMessage.textContent="Google 로그인 처리 중 문제가 생겼습니다.";
+    console.error("Redirect result error:",err);
+    let msg="Google 로그인 처리 중 문제가 생겼습니다.";
+    if(err?.code==="auth/unauthorized-domain"){
+      msg="현재 사이트 주소가 Firebase 승인 도메인에 등록되지 않았습니다.";
+    }
+    els.loginMessage.textContent=msg;
+    if(els.inviteAccessNote){
+      els.inviteAccessNote.classList.add("access-denied");
+      if(els.inviteAccessIcon) els.inviteAccessIcon.textContent="!";
+      if(els.inviteAccessTitle) els.inviteAccessTitle.textContent="로그인 설정을 확인해주세요.";
+      if(els.inviteAccessDesc) els.inviteAccessDesc.textContent=msg;
+    }
   });
 
   els.googleLoginBtn.addEventListener("click",async()=>{
     els.loginMessage.textContent="";
     setInviteAccessState("idle");
     els.googleLoginBtn.disabled=true;
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     try{
-      await signInWithPopup(auth,provider);
-    }catch(err){
-      console.error(err);
-      if(["auth/popup-blocked","auth/popup-closed-by-user","auth/cancelled-popup-request"].includes(err.code)){
-        try{ await signInWithRedirect(auth,provider); return; }catch(e){ console.error(e); }
+      // 모바일에서는 팝업보다 redirect 방식이 훨씬 안정적입니다.
+      if(isMobile){
+        await signInWithRedirect(auth,provider);
+        return;
       }
-      els.loginMessage.textContent="Google 로그인에 실패했습니다. 다시 시도해주세요.";
+
+      await signInWithPopup(auth,provider);
+
+    }catch(err){
+      console.error("Google login error:", err);
+
+      // 팝업 관련 오류는 redirect로 한 번 더 시도
+      if([
+        "auth/popup-blocked",
+        "auth/popup-closed-by-user",
+        "auth/cancelled-popup-request",
+        "auth/web-storage-unsupported"
+      ].includes(err.code)){
+        try{
+          await signInWithRedirect(auth,provider);
+          return;
+        }catch(e){
+          console.error("Google redirect error:", e);
+          err=e;
+        }
+      }
+
+      let msg="Google 로그인에 실패했습니다.";
+      if(err?.code==="auth/unauthorized-domain"){
+        msg="현재 사이트 주소가 Firebase 승인 도메인에 등록되지 않았습니다.";
+      }else if(err?.code==="auth/network-request-failed"){
+        msg="네트워크 연결 문제로 Google 로그인을 시작하지 못했습니다.";
+      }else if(err?.code==="auth/operation-not-allowed"){
+        msg="Firebase에서 Google 로그인이 활성화되어 있지 않습니다.";
+      }
+
+      els.loginMessage.textContent=msg;
+      if(els.inviteAccessNote){
+        els.inviteAccessNote.classList.add("access-denied");
+        if(els.inviteAccessIcon) els.inviteAccessIcon.textContent="!";
+        if(els.inviteAccessTitle) els.inviteAccessTitle.textContent="로그인을 시작하지 못했습니다.";
+        if(els.inviteAccessDesc) els.inviteAccessDesc.textContent=msg;
+      }
     }finally{
       els.googleLoginBtn.disabled=false;
     }
