@@ -292,26 +292,60 @@
   </div>
 
   <!-- 로그인 -->
-  <div id="loginLayer" class="overlay-layer">
-    <div class="login-card">
-      <div class="login-flower lf1"></div>
-      <div class="login-flower lf2"></div>
-      <div class="login-mark">日</div>
+  <div id="loginLayer" class="overlay-layer invitation-layer">
+    <div class="login-card invitation-card">
+      <div class="invitation-glow ig1"></div>
+      <div class="invitation-glow ig2"></div>
 
-      <p class="eyebrow">PRIVATE JOURNAL</p>
+      <div class="invitation-topline">
+        <span class="invite-number">PRIVATE EDITION · 01</span>
+        <span class="invite-dot"></span>
+        <span class="invite-status">INVITATION ONLY</span>
+      </div>
+
+      <div class="login-mark invitation-seal">日</div>
+
+      <p class="eyebrow invitation-eyebrow">PRIVATE INVITATION JOURNAL</p>
       <h2>몸의 일기</h2>
-      <p class="login-copy">초대된 6명만 사용하는 개인 기록 공간입니다.</p>
 
-      <button id="googleLoginBtn" class="google-btn" type="button">
+      <div class="invitation-copy">
+        <strong>누구에게나 열려 있는 공간이 아닙니다.</strong>
+        <p>
+          초대받은 몇 사람만 자신의 몸의 시간을 기록하는<br>
+          작고 조용한 비공개 저널입니다.
+        </p>
+        <p class="invitation-subcopy">
+          매일의 작은 변화와 몸의 기억을<br>
+          오직 나만의 기록으로 남겨보세요.
+        </p>
+      </div>
+
+      <div class="invitation-rule">
+        <span></span><i></i><span></span>
+      </div>
+
+      <div class="invite-access-note">
+        <div class="invite-lock">✦</div>
+        <div>
+          <strong>초대 전용 공간</strong>
+          <span>사전에 등록된 Google 계정만 입장할 수 있습니다.</span>
+        </div>
+      </div>
+
+      <button id="googleLoginBtn" class="google-btn invitation-login-btn" type="button">
         <span class="google-mark">G</span>
-        Google 계정으로 로그인
+        초대된 Google 계정으로 입장
       </button>
 
-      <button id="previewBtn" class="preview-btn" type="button">
-        로그인 없이 디자인 미리보기
+      <button id="previewBtn" class="preview-btn invitation-preview-btn" type="button">
+        몸의 일기 둘러보기
       </button>
 
-      <p id="loginMessage" class="form-message"></p>
+      <p class="invitation-footnote">
+        초대받지 않은 계정은 이 공간에 입장할 수 없습니다.
+      </p>
+
+      <p id="loginMessage" class="form-message invitation-message"></p>
     </div>
   </div>
 
