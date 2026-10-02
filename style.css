@@ -887,3 +887,19 @@ code{background:#eee7e1;border-radius:5px;padding:2px 4px}
   .gallery-meta strong{font-size:17px!important;}
   .gallery-meta span{font-size:11px!important;padding:3px 7px!important;}
 }
+
+
+/* ===== 사진 슬라이드 안내 문구 ===== */
+.photo-guide{
+  margin:14px 4px 0;
+  font:500 12px/1.7 "Noto Serif KR",serif;
+  color:#8a7d75;
+  text-align:center;
+}
+
+@media(max-width:650px){
+  .photo-guide{
+    font-size:11px;
+    line-height:1.65;
+  }
+}
